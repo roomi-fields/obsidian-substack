@@ -124,7 +124,7 @@ obsidian-substack-publisher/
 ```
 MIT License
 
-Copyright (c) 2025 Romi
+Copyright (c) 2025 Romain Peyrichou
 
 ---
 

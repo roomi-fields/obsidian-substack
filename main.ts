@@ -259,7 +259,7 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
     });
 
     versionContent.createEl("p", {
-      text: "By Romi",
+      text: "By Romain Peyrichou",
       attr: { class: "substack-version-author" }
     });
 

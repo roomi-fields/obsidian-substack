@@ -23,12 +23,12 @@ Please be respectful and constructive in all interactions. We welcome contributo
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/YOUR-USERNAME/project-name.git
-   cd project-name
+   git clone https://github.com/YOUR-USERNAME/obsidian-substack.git
+   cd obsidian-substack
    ```
 3. **Add the upstream remote**:
    ```bash
-   git remote add upstream https://github.com/ORIGINAL-OWNER/project-name.git
+   git remote add upstream https://github.com/roomi-fields/obsidian-substack.git
    ```
 
 ## Development Setup
@@ -237,7 +237,7 @@ npm test -- path/to/test.spec.ts
 
 ## Questions?
 
-- Open an [Issue](https://github.com/OWNER/project-name/issues) for bugs
-- Start a [Discussion](https://github.com/OWNER/project-name/discussions) for questions
+- Open an [Issue](https://github.com/roomi-fields/obsidian-substack/issues) for bugs
+- Start a [Discussion](https://github.com/roomi-fields/obsidian-substack/discussions) for questions
 
 Thank you for contributing!

@@ -2,147 +2,123 @@
 
 Publish your Obsidian notes directly to Substack as drafts or published posts.
 
-## Overview
-
-Obsidian Substack Publisher bridges the gap between your note-taking and newsletter publishing workflows. Create and publish Substack posts directly from Obsidian without switching between applications.
-
 ## Features
 
-- **Seamless Workflow**: Create Substack posts without leaving Obsidian
-- **Draft & Publish**: Create drafts or publish directly
+- **Automatic Login**: One-click Substack authentication (desktop only)
+- **Draft & Publish**: Save as draft or publish immediately
 - **Multi-Publication Support**: Manage multiple Substack publications
-- **Markdown Conversion**: Automatic conversion of Obsidian markdown to Substack format
-- **User-Friendly Interface**: Simple modal for composing and publishing posts
+- **Markdown Conversion**: Automatic conversion to Substack format
+  - Headers, paragraphs, lists (ordered/unordered)
+  - Bold, italic, links, code
+  - Blockquotes, horizontal rules
 
-## Quick Start
+## Installation
 
-### 1. Installation
+### From Obsidian Community Plugins (Coming Soon)
 
-1. Download the plugin files
-2. Place them in your Obsidian plugins directory: `.obsidian/plugins/obsidian-substack/`
-3. Enable the plugin in Obsidian settings
+1. Open Settings → Community plugins
+2. Search for "Substack Publisher"
+3. Install and enable
 
-### 2. Substack Authentication
+### Manual Installation
 
+1. Download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/roomi-fields/obsidian-substack/releases)
+2. Create folder: `.obsidian/plugins/obsidian-substack/`
+3. Copy the files into this folder
+4. Restart Obsidian and enable the plugin
+
+## Setup
+
+### 1. Login to Substack
+
+**Desktop (Recommended)**:
 1. Open plugin settings
-2. Enter your Substack session cookie (`connect.sid`)
-3. Add your publication URL(s)
-4. Click "Validate" to verify the connection
+2. Click "Login" button
+3. Sign in to Substack in the popup window
+4. Cookie is captured automatically
 
-#### Getting Your Session Cookie
-
+**Mobile/Manual**:
 1. Log in to Substack in your browser
-2. Open Developer Tools (F12)
-3. Go to Application > Cookies > substack.com
-4. Copy the value of `substack.sid` or `connect.sid`
+2. Open Developer Tools (F12) → Application → Cookies
+3. Copy the `substack.sid` cookie value
+4. Paste it in plugin settings
 
-### 3. Create Your First Post
+### 2. Add Your Publication(s)
 
-- Use the ribbon icon to open the post composer
-- Or use the command palette: "Create Substack post"
-- Write your content in the modal
-- Choose "Save as Draft" or "Publish"
+1. Go to plugin settings
+2. Enter your publication subdomain(s)
+   - Example: if your Substack is `myname.substack.com`, enter `myname`
+   - Multiple publications: separate with commas
 
 ## Usage
 
-### Creating Posts
+1. Open any Markdown note in Obsidian
+2. Click the "Send" ribbon icon or use command palette: "Publish to Substack"
+3. Review title and subtitle
+4. Choose your publication
+5. Click "Save as Draft" or "Publish"
 
-1. **Ribbon Icon**: Click the Substack icon in the left ribbon
-2. **Command Palette**: Search for "Create Substack post"
-3. **Write Content**: Enter your post content in the modal
-4. **Select Publication**: Choose target publication (if multiple configured)
-5. **Publish Options**: Save as draft or publish immediately
+## Supported Markdown
 
-### Settings Configuration
-
-- **Session Cookie**: Your Substack authentication cookie
-- **Publications**: List of your Substack publication URLs
-- **Default Publication**: Primary publication for quick posting
-- **Dev Mode**: Enable for detailed logging and debugging
-
-## Privacy & Security
-
-- **Local Storage**: All credentials are stored locally in Obsidian
-- **No Data Collection**: This plugin doesn't collect or transmit user data
-- **Cookie Auth**: Uses your existing Substack session (no passwords stored)
-
-## Development
-
-### Prerequisites
-
-- Node.js 18+
-- npm
-
-### Setup
-
-```bash
-npm install
-npm run dev      # Development with file watching
-npm run build    # Production build
-npm run lint     # Code linting
-npm run test     # Run tests
-```
-
-### Project Structure
-
-```
-├── main.ts                 # Main plugin entry point
-├── manifest.json           # Plugin metadata
-├── src/
-│   ├── substack/
-│   │   ├── api.ts          # Substack API integration
-│   │   ├── auth.ts         # Authentication management
-│   │   ├── converter.ts    # Markdown to Substack conversion
-│   │   └── PostComposer.ts # Post creation modal
-│   └── utils/
-│       └── logger.ts       # Logging utility
-└── README.md
-```
+| Element | Support |
+|---------|---------|
+| Headers (H1-H6) | ✅ |
+| Bold, Italic | ✅ |
+| Links | ✅ |
+| Ordered lists | ✅ |
+| Unordered lists | ✅ |
+| Blockquotes | ✅ |
+| Code blocks | ✅ |
+| Inline code | ✅ |
+| Horizontal rules | ✅ |
+| Images | ❌ (coming soon) |
+| Tables | ❌ |
 
 ## Troubleshooting
 
-### Common Issues
+**"Session expired or invalid"**
+- Re-login via Settings → Login button
+- Or refresh your cookie manually
 
-**Cookie Invalid/Expired**
-- Get a fresh cookie from your browser
-- Ensure you're logged into Substack
-- Cookies typically expire after 30 days
+**"Publication not found"**
+- Verify your publication subdomain is correct
+- Ensure you have write access to the publication
 
-**Post Failed to Publish**
-- Verify your internet connection
-- Check that your publication URL is correct
-- Ensure content doesn't violate Substack's guidelines
+**Plugin not working on mobile**
+- Auto-login requires desktop Obsidian
+- Use manual cookie entry on mobile
 
-**Plugin Not Loading**
-- Enable dev mode in settings for detailed logs
-- Check the developer console for error messages
-- Verify plugin files are in the correct directory
+## Privacy & Security
+
+- Credentials stored locally in your Obsidian vault
+- No data collection or telemetry
+- Cookie-based auth (no passwords stored)
 
 ## Limitations
 
 - Uses unofficial Substack API (may break if Substack changes their API)
-- Image upload not yet supported (v1)
-- Scheduling not supported (API limitation)
+- Image upload not supported (v1)
+- Desktop-only for auto-login feature
 
 ## Credits
 
-This plugin is built upon:
+Built upon these open-source projects:
 
-- [obsidian-content-os](https://github.com/eharris128/obsidian-content-os) by @eharris128 - Obsidian plugin structure
-- [substack-mcp-plus](https://github.com/ty13r/substack-mcp-plus) by @ty13r - Substack API integration
-- [python-substack](https://github.com/ma2za/python-substack) by @ma2za - Unofficial Substack library
+- [obsidian-content-os](https://github.com/eharris128/obsidian-content-os) by @eharris128
+- [substack-mcp-plus](https://github.com/ty13r/substack-mcp-plus) by @ty13r
+- [python-substack](https://github.com/ma2za/python-substack) by @ma2za
 
-All original projects are MIT licensed. See [ATTRIBUTIONS.md](ATTRIBUTIONS.md) for details.
-
-## Disclaimer
-
-This plugin is not affiliated with or endorsed by Substack. It uses unofficial, reverse-engineered API endpoints that may change without notice. Use at your own risk and always consult Substack's Terms of Service.
+See [ATTRIBUTIONS.md](ATTRIBUTIONS.md) for details.
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) file for details.
+MIT License - See [LICENSE](LICENSE) for details.
 
 ## Support
 
-For issues, feature requests, or questions:
-- GitHub Issues: [Report an issue](https://github.com/roomi-fields/obsidian-substack/issues)
+- [Report an issue](https://github.com/roomi-fields/obsidian-substack/issues)
+- [Feature requests](https://github.com/roomi-fields/obsidian-substack/issues/new)
+
+---
+
+**Disclaimer**: This plugin is not affiliated with or endorsed by Substack. Use at your own risk.

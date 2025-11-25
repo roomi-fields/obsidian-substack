@@ -34,7 +34,7 @@ git show substack-mcp/main:src/simple_auth_manager.py
 ```
 
 ### Fichiers ✅ Prêts (Phase 1 complète)
-- `manifest.json` - Adapté (id: obsidian-substack, author: Romi)
+- `manifest.json` - Adapté (id: obsidian-substack, author: Romain Peyrichou)
 - `package.json` - Adapté (name: obsidian-substack, repo: roomi-fields, builtin-modules@3.3.0)
 - `versions.json` - Reset à 1.0.0
 - `LICENSE` - MIT avec attributions aux 3 sources

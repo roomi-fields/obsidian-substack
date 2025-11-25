@@ -5,57 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] - 2025-01-26
 
 ### Added
-- (Add new features here)
+- **Substack Authentication**
+  - Automatic login via Electron BrowserWindow (desktop only)
+  - Session cookie capture after user authentication
+  - Manual cookie entry as fallback
 
-### Changed
-- (Add changes to existing functionality here)
+- **Publishing Features**
+  - Create drafts from Obsidian notes
+  - Publish posts directly to Substack
+  - Multi-publication support
+  - Title and subtitle editing
 
-### Deprecated
-- (Add soon-to-be removed features here)
+- **Markdown Conversion**
+  - Headers (H1-H6)
+  - Paragraphs with inline formatting (bold, italic)
+  - Links
+  - Ordered and unordered lists
+  - Code blocks and inline code
+  - Blockquotes
+  - Horizontal rules
 
-### Removed
-- (Add removed features here)
+- **User Interface**
+  - Post composer modal
+  - Publication selector
+  - Content preview
+  - Draft/Publish buttons
+  - Clear error messages
 
-### Fixed
-- (Add bug fixes here)
+- **Developer Features**
+  - Dev mode with configurable log levels
+  - TypeScript with strict typing
+  - ESLint configuration
+  - Vitest test setup
 
-### Security
-- (Add security fixes here)
-
-## [1.0.0] - YYYY-MM-DD
-
-### Added
-- Initial release
-- Core functionality
-- Documentation
-- CI/CD pipeline
+### Credits
+Built upon open-source projects:
+- [obsidian-content-os](https://github.com/eharris128/obsidian-content-os) by @eharris128
+- [substack-mcp-plus](https://github.com/ty13r/substack-mcp-plus) by @ty13r
+- [python-substack](https://github.com/ma2za/python-substack) by @ma2za
 
 ---
 
-## Versioning Guide
-
-### Version Format: MAJOR.MINOR.PATCH
-
-- **MAJOR**: Incompatible API changes
-- **MINOR**: New functionality (backward compatible)
-- **PATCH**: Bug fixes (backward compatible)
-
-### Commit Message Prefixes
-
-| Prefix | Description | Version Impact |
-|--------|-------------|----------------|
-| `feat:` | New feature | MINOR |
-| `fix:` | Bug fix | PATCH |
-| `docs:` | Documentation | PATCH |
-| `style:` | Code style | PATCH |
-| `refactor:` | Code refactoring | PATCH |
-| `perf:` | Performance | PATCH |
-| `test:` | Tests | PATCH |
-| `chore:` | Maintenance | PATCH |
-| `BREAKING CHANGE:` | Breaking change | MAJOR |
-
-[Unreleased]: https://github.com/your-username/project-name/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/your-username/project-name/releases/tag/v1.0.0
+[1.0.0]: https://github.com/roomi-fields/obsidian-substack/releases/tag/v1.0.0
