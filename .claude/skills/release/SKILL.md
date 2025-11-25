@@ -1,30 +1,31 @@
 ---
 name: release
-description: Automates the complete release process for npm packages. This skill should be used when the user requests to publish a new version, bump version numbers, sync versions across files, update changelog, build, tag, and publish to npm and GitHub.
+description: Automates the complete release process for this Obsidian plugin. This skill should be used when the user requests to publish a new version, bump version numbers, sync versions across files, update changelog, build, tag, and publish to GitHub.
 ---
 
-# Release Management Skill
+# Release Management Skill - Obsidian Plugin
 
 ## Overview
 
-This skill automates the complete release workflow for npm packages, ensuring consistent versioning, changelog updates, and proper publication to npm and GitHub.
+This skill automates the complete release workflow for this Obsidian plugin, ensuring consistent versioning, changelog updates, and proper publication to GitHub.
+
+**IMPORTANT**: This project uses **manual releases** (not automated CI). The GitHub Actions release workflow is disabled to avoid conflicts.
 
 ## Project Structure
 
-Files that may need version updates:
+Files that need version updates:
 - `package.json` - Source of truth for version (ALWAYS update first)
-- `README.md` - Version badges, installation commands
+- `manifest.json` - Obsidian plugin manifest (MUST match package.json)
+- `versions.json` - Obsidian version compatibility mapping
 - `CHANGELOG.md` - Release history
 
 ## Pre-Release Checklist
 
 Before starting a release:
 1. Ensure all tests pass: `npm test`
-2. Ensure code is formatted: `npm run format:check`
-3. Ensure linting passes: `npm run lint`
-4. Ensure build succeeds: `npm run build`
-5. Ensure working directory is clean: `git status`
-6. Ensure you're on the main branch: `git branch --show-current`
+2. Ensure build succeeds: `npm run build`
+3. Ensure working directory is clean: `git status`
+4. Ensure you're on the master branch: `git branch --show-current`
 
 ## Release Workflow
 
@@ -35,22 +36,16 @@ Follow semantic versioning (SemVer):
 - **MINOR** (0.x.0): New features, backward compatible
 - **PATCH** (0.0.x): Bug fixes, backward compatible
 
-### 2. Update Version in package.json
+### 2. Update Versions
 
-```bash
-# For patch release
-npm version patch --no-git-tag-version
-
-# For minor release
-npm version minor --no-git-tag-version
-
-# For major release
-npm version major --no-git-tag-version
-```
+Update version in ALL these files:
+- `package.json`
+- `manifest.json`
+- `versions.json` (add new entry if minAppVersion changes)
 
 ### 3. Update CHANGELOG.md
 
-Add a new section at the top of CHANGELOG.md:
+Add a new section at the top:
 
 ```markdown
 ## [X.Y.Z] - YYYY-MM-DD
@@ -63,25 +58,16 @@ Add a new section at the top of CHANGELOG.md:
 
 ### Fixed
 - Bug fixes
-
-### Removed
-- Removed features
 ```
 
-### 4. Update Version References
-
-Search and update version strings in:
-- README.md (installation commands, badges)
-- Any hardcoded version strings in source code
-
-### 5. Build and Test
+### 4. Build and Test
 
 ```bash
 npm run build
 npm test
 ```
 
-### 6. Commit and Tag
+### 5. Commit and Tag
 
 ```bash
 git add -A
@@ -89,46 +75,71 @@ git commit -m "chore: release vX.Y.Z"
 git tag -a vX.Y.Z -m "Release vX.Y.Z"
 ```
 
-### 7. Push to GitHub
+### 6. Push to GitHub
 
 ```bash
-git push origin main
+git push origin master
 git push origin vX.Y.Z
 ```
 
-### 8. Publish to npm
+### 7. Create GitHub Release (MANUAL)
+
+**IMPORTANT**: Create the release manually with `gh` CLI. Do NOT rely on GitHub Actions.
 
 ```bash
-npm publish --access public
+gh release create vX.Y.Z \
+  --repo roomi-fields/obsidian-substack \
+  --title "vX.Y.Z" \
+  --notes "Release notes here..." \
+  main.js manifest.json styles.css
 ```
 
-### 9. Create GitHub Release
+The release MUST include these files as assets:
+- `main.js` - Compiled plugin code
+- `manifest.json` - Plugin manifest
+- `styles.css` - Plugin styles
+
+### 8. Deploy to Test Vault (Optional)
 
 ```bash
-gh release create vX.Y.Z --title "vX.Y.Z" --notes-from-tag
+powershell -ExecutionPolicy Bypass -File "deployment/scripts/deploy.ps1"
 ```
 
 ## Troubleshooting
 
-### npm publish fails
-- Check you're logged in: `npm whoami`
-- Check package name is available
-- Verify you have publish rights to the scope
+### Release already exists
+If creating a release fails because it already exists:
+```bash
+# Delete existing release
+gh release delete vX.Y.Z --repo roomi-fields/obsidian-substack --yes
+
+# Delete and recreate tag
+git tag -d vX.Y.Z
+git push origin :refs/tags/vX.Y.Z
+git tag -a vX.Y.Z -m "Release vX.Y.Z"
+git push origin vX.Y.Z
+
+# Create release again
+gh release create vX.Y.Z ...
+```
 
 ### Tag already exists
-- Delete local tag: `git tag -d vX.Y.Z`
-- Delete remote tag: `git push origin :refs/tags/vX.Y.Z`
+```bash
+git tag -d vX.Y.Z
+git push origin :refs/tags/vX.Y.Z
+```
 
 ### Version mismatch
-- Always update package.json first
-- Use the version sync script to update all references
+Always update ALL version files:
+- package.json
+- manifest.json
+- versions.json
 
-## Scripts
+## Why Manual Releases?
 
-### update-version.cjs
+The GitHub Actions release workflow (`.github/workflows/release.yml`) is **disabled** because:
+1. We create releases manually with specific release notes
+2. Automated releases would conflict with manually created ones
+3. Manual control allows better release note customization
 
-Use this script to automatically update version references across the project:
-
-```bash
-node .claude/skills/release/scripts/update-version.cjs
-```
+To re-enable automated releases, edit `.github/workflows/release.yml` and uncomment the `on: push: tags:` section.
