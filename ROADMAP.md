@@ -17,6 +17,9 @@
 ---
 
 ## v1.1.0 - Images (PRIORITAIRE)
+> **Étude**: [docs/studies/v1.1-images.md](docs/studies/v1.1-images.md)
+> **Estimation**: ~14h
+
 - [ ] Upload d'images locales vers Substack CDN
 - [ ] Support des images embarquées `![alt](path/to/image.png)`
 - [ ] Conversion automatique des chemins locaux → URLs Substack
@@ -24,17 +27,24 @@
 - [ ] Support des formats: PNG, JPG, GIF, WebP
 
 ## v1.2.0 - Améliorations UX
+> **Étude**: [docs/studies/v1.2-ux-improvements.md](docs/studies/v1.2-ux-improvements.md)
+> **Estimation**: ~11h
+
 - [ ] Sélecteur d'audience (everyone, only_paid, founding, only_free)
 - [ ] Confirmation avant publication directe
 - [ ] Affichage du lien vers le post après publication
 - [ ] Meilleure gestion des erreurs (cookie expiré, rate limit, etc.)
 - [ ] Notification de succès avec lien cliquable
+- [ ] Progress bar pendant upload
 
 ## v1.3.0 - Gestion des drafts
+> **Étude**: [docs/studies/v1.3-draft-management.md](docs/studies/v1.3-draft-management.md)
+> **Estimation**: ~14h
+
 - [ ] Liste des drafts existants
 - [ ] Mise à jour d'un draft existant (au lieu de créer nouveau)
 - [ ] Suppression de drafts
-- [ ] Synchronisation bidirectionnelle (optionnel)
+- [ ] Liaison note ↔ draft via frontmatter
 
 ## v1.4.0 - Métadonnées
 - [ ] Support du frontmatter YAML pour métadonnées
