@@ -3,66 +3,71 @@
  * Adapted from substack-mcp-plus Python implementation
  */
 
-// Text marks for inline formatting
+// Text marks for inline formatting (Tiptap format)
 export interface TextMark {
   type: "strong" | "em" | "code" | "link";
-  href?: string; // Only for link marks
+  attrs?: {
+    href?: string; // Only for link marks
+  };
 }
 
-// Base text content element
+// Base text content element (Tiptap format uses "text" field, not "content")
 export interface TextContent {
   type: "text";
-  content: string;
+  text: string;
   marks?: TextMark[];
 }
+
+// Hard break for line breaks within paragraphs
+export interface HardBreak {
+  type: "hardBreak";
+}
+
+// Content that can appear inside a paragraph
+export type InlineContent = TextContent | HardBreak;
 
 // Paragraph block
 export interface ParagraphBlock {
   type: "paragraph";
-  content: TextContent[];
+  content: InlineContent[];
 }
 
-// Header blocks (h1-h6)
-export type HeaderType =
-  | "heading-one"
-  | "heading-two"
-  | "heading-three"
-  | "heading-four"
-  | "heading-five"
-  | "heading-six";
-
+// Header blocks (h1-h6) - Tiptap format with attrs.level
 export interface HeaderBlock {
-  type: HeaderType;
+  type: "heading";
+  attrs: {
+    level: 1 | 2 | 3 | 4 | 5 | 6;
+  };
   content: TextContent[];
 }
 
-// List item blocks
-export interface BulletedListItemBlock {
-  type: "bulleted-list-item";
+// List item blocks (Tiptap format)
+export interface ListItemBlock {
+  type: "listItem";
   content: ParagraphBlock[];
 }
 
-export interface OrderedListItemBlock {
-  type: "ordered-list-item";
-  content: ParagraphBlock[];
-}
-
-// List blocks
-export interface BulletedListBlock {
-  type: "bulleted-list";
-  content: BulletedListItemBlock[];
+// List blocks (Tiptap format)
+export interface BulletListBlock {
+  type: "bulletList";
+  content: ListItemBlock[];
 }
 
 export interface OrderedListBlock {
-  type: "ordered-list";
-  content: OrderedListItemBlock[];
+  type: "orderedList";
+  content: ListItemBlock[];
 }
 
-// Code block
+// Code block (Tiptap format)
 export interface CodeBlock {
-  type: "code";
-  language: string;
-  content: string;
+  type: "codeBlock";
+  attrs?: {
+    language?: string;
+  };
+  content: Array<{
+    type: "text";
+    text: string;
+  }>;
 }
 
 // Blockquote
@@ -71,17 +76,29 @@ export interface BlockquoteBlock {
   content: ParagraphBlock[];
 }
 
-// Image block
+// Image block (Substack uses image2 type)
 export interface ImageBlock {
-  type: "captioned-image";
-  src: string;
-  alt: string;
-  caption: string;
+  type: "image2";
+  attrs: {
+    src: string;
+    fullscreen?: boolean;
+    imageSize?: string;
+    height?: number;
+    width?: number;
+    resizeWidth?: number;
+    bytes?: number;
+    alt?: string;
+    title?: string;
+    type?: string;
+    href?: string;
+    belowTheFold?: boolean;
+    internalRedirect?: string | null;
+  };
 }
 
-// Horizontal rule
+// Horizontal rule (Tiptap format)
 export interface HorizontalRuleBlock {
-  type: "hr";
+  type: "horizontal_rule";
 }
 
 // Paywall marker
@@ -93,7 +110,7 @@ export interface PaywallBlock {
 export type SubstackBlock =
   | ParagraphBlock
   | HeaderBlock
-  | BulletedListBlock
+  | BulletListBlock
   | OrderedListBlock
   | CodeBlock
   | BlockquoteBlock

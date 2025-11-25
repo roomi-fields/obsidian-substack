@@ -36,6 +36,11 @@ export default class SubstackPublisherPlugin extends Plugin {
       this.settings.logLevel
     );
 
+    // Pass app reference for file logging
+    if ("setApp" in this.logger) {
+      this.logger.setApp(this.app);
+    }
+
     this.logger.logPluginLoad();
     this.logger.debug("Settings loaded", this.settings);
 
@@ -135,17 +140,17 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Substack cookie")
       .setDesc(
-        "Your Substack session cookie (substack.sid or connect.sid). Get it from browser dev tools."
+        "Your Substack session cookie (substack.sid). Get it from browser dev tools → Application → Cookies → substack.com"
       )
       .addText((text) => {
         text
-          .setPlaceholder("Enter your Substack cookie")
+          .setPlaceholder("Enter your Substack cookie value")
           .setValue(this.plugin.settings.substackCookie)
           .onChange(async (value) => {
             this.plugin.settings.substackCookie = value;
             await this.plugin.saveSettings();
           });
-        text.inputEl.type = "password";
+        text.inputEl.style.width = "100%";
       });
 
     containerEl.createEl("h2", { text: "Publications" });

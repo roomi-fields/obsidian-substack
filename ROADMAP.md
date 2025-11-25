@@ -46,7 +46,14 @@
 - [ ] Suppression de drafts
 - [ ] Liaison note ↔ draft via frontmatter
 
-## v1.4.0 - Métadonnées
+## v1.4.0 - Authentification simplifiée (PRIORITAIRE)
+- [ ] Login OAuth-like dans une webview Obsidian
+- [ ] Récupération automatique du cookie après login
+- [ ] Refresh automatique du cookie avant expiration
+- [ ] Indicateur de statut de connexion dans les settings
+- [ ] Bouton "Se connecter à Substack" (plus de copie manuelle de cookie)
+
+## v1.5.0 - Métadonnées
 - [ ] Support du frontmatter YAML pour métadonnées
   - `title`, `subtitle`, `audience`
   - `tags`, `section`

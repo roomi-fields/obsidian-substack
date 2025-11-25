@@ -5,10 +5,10 @@
 
 import {
   TextContent,
+  InlineContent,
   ParagraphBlock,
   HeaderBlock,
-  HeaderType,
-  BulletedListBlock,
+  BulletListBlock,
   OrderedListBlock,
   CodeBlock,
   BlockquoteBlock,
@@ -27,62 +27,61 @@ const ESCAPED_BRACKET_CLOSE = "\x00ESCAPED_BRACKET_CLOSE\x00";
  * Builder class for creating Substack JSON blocks
  */
 class BlockBuilder {
-  paragraph(content: string | TextContent[]): ParagraphBlock {
+  paragraph(content: string | InlineContent[]): ParagraphBlock {
     if (typeof content === "string") {
       return {
         type: "paragraph",
-        content: [{ type: "text", content }],
+        content: [{ type: "text", text: content }],
       };
     }
     return { type: "paragraph", content };
   }
 
-  header(content: string, level: number): HeaderBlock {
+  hardBreak(): { type: "hardBreak" } {
+    return { type: "hardBreak" };
+  }
+
+  header(text: string, level: number): HeaderBlock {
     if (level < 1 || level > 6) {
       throw new Error("Header level must be between 1 and 6");
     }
 
-    const headerTypes: Record<number, HeaderType> = {
-      1: "heading-one",
-      2: "heading-two",
-      3: "heading-three",
-      4: "heading-four",
-      5: "heading-five",
-      6: "heading-six",
-    };
-
     return {
-      type: headerTypes[level] as HeaderType,
-      content: [{ type: "text", content }],
+      type: "heading",
+      attrs: { level: level as 1 | 2 | 3 | 4 | 5 | 6 },
+      content: [{ type: "text", text }],
     };
   }
 
-  unorderedList(items: string[]): BulletedListBlock {
+  unorderedList(items: InlineContent[][]): BulletListBlock {
     return {
-      type: "bulleted-list",
-      content: items.map((item) => ({
-        type: "bulleted-list-item" as const,
-        content: [this.paragraph(item)],
+      type: "bulletList",
+      content: items.map((itemContent) => ({
+        type: "listItem" as const,
+        content: [this.paragraph(itemContent)],
       })),
     };
   }
 
-  orderedList(items: string[]): OrderedListBlock {
+  orderedList(items: InlineContent[][]): OrderedListBlock {
     return {
-      type: "ordered-list",
-      content: items.map((item) => ({
-        type: "ordered-list-item" as const,
-        content: [this.paragraph(item)],
+      type: "orderedList",
+      content: items.map((itemContent) => ({
+        type: "listItem" as const,
+        content: [this.paragraph(itemContent)],
       })),
     };
   }
 
   codeBlock(code: string, language: string = ""): CodeBlock {
-    return {
-      type: "code",
-      language,
-      content: code,
+    const block: CodeBlock = {
+      type: "codeBlock",
+      content: [{ type: "text", text: code }],
     };
+    if (language) {
+      block.attrs = { language };
+    }
+    return block;
   }
 
   blockquote(content: string): BlockquoteBlock {
@@ -92,29 +91,33 @@ class BlockBuilder {
     };
   }
 
-  image(src: string, alt: string, caption: string = ""): ImageBlock {
-    return {
-      type: "captioned-image",
+  image(src: string, alt: string, title: string = ""): ImageBlock {
+    const attrs: ImageBlock["attrs"] = {
       src,
-      alt,
-      caption,
+      fullscreen: false,
+    };
+    if (alt) attrs.alt = alt;
+    if (title) attrs.title = title;
+    return {
+      type: "image2",
+      attrs,
     };
   }
 
-  link(text: string, href: string): TextContent {
+  link(linkText: string, href: string): TextContent {
     return {
       type: "text",
-      content: text,
-      marks: [{ type: "link", href }],
+      text: linkText,
+      marks: [{ type: "link", attrs: { href } }],
     };
   }
 
   horizontalRule(): HorizontalRuleBlock {
-    return { type: "hr" };
+    return { type: "horizontal_rule" };
   }
 
-  text(content: string, marks?: Array<"strong" | "em" | "code">): TextContent {
-    const textObj: TextContent = { type: "text", content };
+  text(textContent: string, marks?: Array<"strong" | "em" | "code">): TextContent {
+    const textObj: TextContent = { type: "text", text: textContent };
     if (marks && marks.length > 0) {
       textObj.marks = marks.map((mark) => ({ type: mark }));
     }
@@ -293,7 +296,7 @@ export class MarkdownConverter {
   private parseList(
     lines: string[],
     start: number
-  ): { block: BulletedListBlock | OrderedListBlock | null; nextIndex: number } {
+  ): { block: BulletListBlock | OrderedListBlock | null; nextIndex: number } {
     const firstLine = lines[start];
     if (!firstLine) {
       return { block: null, nextIndex: start + 1 };
@@ -302,7 +305,7 @@ export class MarkdownConverter {
     // Determine list type
     const isOrdered = /^\d+\.\s/.test(firstLine.trim());
 
-    const items: string[] = [];
+    const items: InlineContent[][] = [];
     let i = start;
 
     while (i < lines.length) {
@@ -334,7 +337,9 @@ export class MarkdownConverter {
       if (match) {
         const content = isOrdered ? match[1] : match[2];
         if (content) {
-          items.push(content);
+          // Parse inline formatting for list items
+          const parsedContent = this.parseInlineFormatting(content);
+          items.push(parsedContent);
         }
         i++;
       } else {
@@ -385,19 +390,32 @@ export class MarkdownConverter {
     }
 
     if (paragraphLines.length > 0) {
-      const text = paragraphLines.join(" ");
-
-      // Check for images first
-      const imgMatch = text.trim().match(/^!\[([^\]]*)\]\(([^\s)]+)(?:\s+"([^"]+)")?\)$/);
-      if (imgMatch) {
-        const altText = imgMatch[1] ?? "";
-        const src = imgMatch[2] ?? "";
-        const caption = imgMatch[3] ?? "";
-        return { block: this.builder.image(src, altText, caption), nextIndex: i };
+      // Check for images first (single line only)
+      if (paragraphLines.length === 1 && paragraphLines[0]) {
+        const imgMatch = paragraphLines[0].trim().match(/^!\[([^\]]*)\]\(([^\s)]+)(?:\s+"([^"]+)")?\)$/);
+        if (imgMatch) {
+          const altText = imgMatch[1] ?? "";
+          const src = imgMatch[2] ?? "";
+          const caption = imgMatch[3] ?? "";
+          return { block: this.builder.image(src, altText, caption), nextIndex: i };
+        }
       }
 
-      // Parse inline formatting
-      const content = this.parseInlineFormatting(text);
+      // Parse each line and insert hardBreak between lines
+      const content: InlineContent[] = [];
+      for (let j = 0; j < paragraphLines.length; j++) {
+        const line = paragraphLines[j];
+        if (line === undefined) continue;
+
+        const lineContent = this.parseInlineFormatting(line);
+        content.push(...lineContent);
+
+        // Add hardBreak between lines (not after the last line)
+        if (j < paragraphLines.length - 1) {
+          content.push(this.builder.hardBreak());
+        }
+      }
+
       return { block: this.builder.paragraph(content), nextIndex: i };
     }
 
@@ -440,7 +458,7 @@ export class MarkdownConverter {
         // Add text before the match
         if (nextMatch.index > 0) {
           const plainText = remaining.slice(0, nextMatch.index);
-          elements.push(this.restoreEscapedChars({ type: "text", content: plainText }));
+          elements.push(this.restoreEscapedChars({ type: "text", text: plainText }));
         }
 
         // Add the formatted element
@@ -475,17 +493,17 @@ export class MarkdownConverter {
         remaining = remaining.slice(nextMatch.index + nextMatch[0].length);
       } else {
         // No more formatting, add the rest as plain text
-        elements.push(this.restoreEscapedChars({ type: "text", content: remaining }));
+        elements.push(this.restoreEscapedChars({ type: "text", text: remaining }));
         break;
       }
     }
 
-    return elements.length > 0 ? elements : [{ type: "text", content: "" }];
+    return elements.length > 0 ? elements : [{ type: "text", text: "" }];
   }
 
   private restoreEscapedChars(element: TextContent): TextContent {
-    if (element.content) {
-      element.content = element.content
+    if (element.text) {
+      element.text = element.text
         .replace(new RegExp(ESCAPED_ASTERISK, "g"), "*")
         .replace(new RegExp(ESCAPED_BRACKET_OPEN, "g"), "[")
         .replace(new RegExp(ESCAPED_BRACKET_CLOSE, "g"), "]");
