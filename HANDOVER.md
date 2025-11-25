@@ -48,9 +48,11 @@ git show substack-mcp/main:src/simple_auth_manager.py
 - `src/substack/PostComposer.ts` - ✅ Modal avec sélecteur publication, titre, subtitle, preview, boutons Draft/Publish
 - `styles.css` - ✅ Classes `substack-*` (renommées de `contentos-*`)
 
-### Fichiers 📝 À créer (Phase 2)
-- `src/substack/types.ts` - Interfaces TypeScript pour le format Substack JSON
-- `src/substack/converter.ts` - Markdown → Substack JSON (adapté de markdown_converter.py + block_builder.py)
+### Fichiers ✅ Phase 2 complète
+- `src/substack/types.ts` - ✅ Interfaces TypeScript (SubstackBlock, SubstackDocument, etc.)
+- `src/substack/converter.ts` - ✅ MarkdownConverter avec support headers, listes, code, blockquotes, images, inline formatting
+- `src/substack/api.ts` - ✅ Mis à jour avec types stricts
+- `src/substack/PostComposer.ts` - ✅ Intégré avec MarkdownConverter
 
 ---
 
@@ -75,16 +77,16 @@ git show substack-mcp/main:src/simple_auth_manager.py
 - [x] 1.5 Adapter styles.css (renommer classes)
 - [x] 1.6 npm install + npm run build (vérifier compilation)
 
-### PHASE 2 : Implémentation API
-- [ ] 2.1 Créer src/substack/types.ts
-- [ ] 2.2 Implémenter src/substack/api.ts (adapté de post_handler.py)
-- [ ] 2.3 Créer src/substack/converter.ts (adapté de markdown_converter.py + block_builder.py)
-- [ ] 2.4 Implémenter main.ts avec settings Substack (cookie, publications[])
+### PHASE 2 : Implémentation API ✅ COMPLÈTE
+- [x] 2.1 Créer src/substack/types.ts
+- [x] 2.2 Implémenter src/substack/api.ts (adapté de post_handler.py)
+- [x] 2.3 Créer src/substack/converter.ts (adapté de markdown_converter.py + block_builder.py)
+- [x] 2.4 Implémenter main.ts avec settings Substack (cookie, publications[])
 
-### PHASE 3 : UI/UX
-- [ ] 3.1 Implémenter PostComposer.ts modal
-- [ ] 3.2 Ajouter sélecteur de publication (multi-pub)
-- [ ] 3.3 Ajouter boutons Draft / Publish
+### PHASE 3 : UI/UX ✅ COMPLÈTE (fait dans Phase 1-2)
+- [x] 3.1 Implémenter PostComposer.ts modal
+- [x] 3.2 Ajouter sélecteur de publication (multi-pub)
+- [x] 3.3 Ajouter boutons Draft / Publish
 
 ### PHASE 4 : Tests
 - [ ] Tests manuels dans Obsidian
@@ -161,4 +163,4 @@ git show substack-mcp/main:src/handlers/post_handler.py | head -200
 
 ---
 
-**Prochaine action** : Commencer PHASE 2.1 - Créer src/substack/types.ts
+**Prochaine action** : PHASE 4 - Tests manuels dans Obsidian

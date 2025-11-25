@@ -1,11 +1,13 @@
-import { App, Modal, Notice, TFile } from "obsidian";
+import { App, Modal, Notice } from "obsidian";
 import { SubstackAPI } from "./api";
+import { MarkdownConverter } from "./converter";
 import { createLogger } from "../utils/logger";
 
 export class SubstackPostComposer extends Modal {
   private api: SubstackAPI;
   private publications: string[];
   private logger: ReturnType<typeof createLogger>;
+  private converter: MarkdownConverter;
   private selectedPublication: string;
   private title: string = "";
   private subtitle: string = "";
@@ -22,6 +24,7 @@ export class SubstackPostComposer extends Modal {
     this.api = api;
     this.publications = publications;
     this.logger = logger;
+    this.converter = new MarkdownConverter();
     this.selectedPublication = publications[0] || "";
   }
 
@@ -156,17 +159,8 @@ export class SubstackPostComposer extends Modal {
         title: this.title,
       });
 
-      // TODO: Convert markdown to Substack JSON format
-      // For now, use a simple paragraph structure
-      const body = {
-        type: "doc",
-        content: [
-          {
-            type: "paragraph",
-            content: [{ type: "text", text: content }],
-          },
-        ],
-      };
+      // Convert markdown to Substack JSON format
+      const body = this.converter.convert(content);
 
       const response = await this.api.createDraft(
         this.selectedPublication,
@@ -207,16 +201,8 @@ export class SubstackPostComposer extends Modal {
         title: this.title,
       });
 
-      // TODO: Convert markdown to Substack JSON format
-      const body = {
-        type: "doc",
-        content: [
-          {
-            type: "paragraph",
-            content: [{ type: "text", text: content }],
-          },
-        ],
-      };
+      // Convert markdown to Substack JSON format
+      const body = this.converter.convert(content);
 
       // First create draft
       const draftResponse = await this.api.createDraft(

@@ -1,24 +1,9 @@
 import { requestUrl, RequestUrlResponse } from "obsidian";
-
-export interface SubstackDraft {
-  id?: string;
-  title: string;
-  subtitle?: string;
-  body: unknown; // Substack JSON body format
-  audience?: "everyone" | "only_paid" | "founding" | "only_free";
-}
-
-export interface SubstackDraftResponse {
-  id: string;
-  title: string;
-  subtitle: string;
-  slug: string;
-  post_date: string;
-  audience: string;
-  draft_title: string;
-  draft_subtitle: string;
-  draft_body: unknown;
-}
+import {
+  SubstackDocument,
+  SubstackDraftPayload,
+  SubstackDraftResponse,
+} from "./types";
 
 export class SubstackAPI {
   private cookie: string;
@@ -34,27 +19,29 @@ export class SubstackAPI {
   private getHeaders(): Record<string, string> {
     return {
       "Content-Type": "application/json",
-      "Cookie": this.cookie,
+      Cookie: this.cookie,
     };
   }
 
   async createDraft(
     publication: string,
     title: string,
-    body: unknown,
+    body: SubstackDocument,
     subtitle?: string,
-    audience: SubstackDraft["audience"] = "everyone"
+    audience: SubstackDraftPayload["audience"] = "everyone"
   ): Promise<RequestUrlResponse> {
+    const payload: SubstackDraftPayload = {
+      title,
+      subtitle: subtitle || "",
+      body,
+      audience,
+    };
+
     const response = await requestUrl({
       url: `${this.getBaseUrl(publication)}/drafts`,
       method: "POST",
       headers: this.getHeaders(),
-      body: JSON.stringify({
-        title,
-        subtitle: subtitle || "",
-        body,
-        audience,
-      }),
+      body: JSON.stringify(payload),
     });
 
     return response;
@@ -86,7 +73,7 @@ export class SubstackAPI {
   async updateDraft(
     publication: string,
     draftId: string,
-    updates: Partial<SubstackDraft>
+    updates: Partial<SubstackDraftPayload>
   ): Promise<RequestUrlResponse> {
     const response = await requestUrl({
       url: `${this.getBaseUrl(publication)}/drafts/${draftId}`,
@@ -98,7 +85,23 @@ export class SubstackAPI {
     return response;
   }
 
+  async getDraft(
+    publication: string,
+    draftId: string
+  ): Promise<RequestUrlResponse> {
+    const response = await requestUrl({
+      url: `${this.getBaseUrl(publication)}/drafts/${draftId}`,
+      method: "GET",
+      headers: this.getHeaders(),
+    });
+
+    return response;
+  }
+
   updateCookie(newCookie: string): void {
     this.cookie = newCookie;
   }
 }
+
+// Re-export types for convenience
+export type { SubstackDocument, SubstackDraftPayload, SubstackDraftResponse };
