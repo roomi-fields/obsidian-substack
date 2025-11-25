@@ -16,23 +16,25 @@
 
 ---
 
-## v1.1.0 - Améliorations UX
+## v1.1.0 - Images (PRIORITAIRE)
+- [ ] Upload d'images locales vers Substack CDN
+- [ ] Support des images embarquées `![alt](path/to/image.png)`
+- [ ] Conversion automatique des chemins locaux → URLs Substack
+- [ ] Gestion des images de couverture (cover image)
+- [ ] Support des formats: PNG, JPG, GIF, WebP
+
+## v1.2.0 - Améliorations UX
 - [ ] Sélecteur d'audience (everyone, only_paid, founding, only_free)
 - [ ] Confirmation avant publication directe
 - [ ] Affichage du lien vers le post après publication
 - [ ] Meilleure gestion des erreurs (cookie expiré, rate limit, etc.)
 - [ ] Notification de succès avec lien cliquable
 
-## v1.2.0 - Gestion des drafts
+## v1.3.0 - Gestion des drafts
 - [ ] Liste des drafts existants
 - [ ] Mise à jour d'un draft existant (au lieu de créer nouveau)
 - [ ] Suppression de drafts
 - [ ] Synchronisation bidirectionnelle (optionnel)
-
-## v1.3.0 - Images
-- [ ] Upload d'images locales vers Substack
-- [ ] Support des images embarquées dans le Markdown
-- [ ] Gestion des images de couverture (cover image)
 
 ## v1.4.0 - Métadonnées
 - [ ] Support du frontmatter YAML pour métadonnées
