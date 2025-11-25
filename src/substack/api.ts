@@ -46,8 +46,6 @@ export class SubstackAPI {
     subtitle?: string,
     audience: SubstackDraftPayload["audience"] = "everyone"
   ): Promise<RequestUrlResponse> {
-    // Substack API expects these fields for new drafts
-    // draft_body must be a JSON string, not an object
     const payload = {
       draft_title: title,
       draft_subtitle: subtitle || "",
@@ -61,72 +59,14 @@ export class SubstackAPI {
 
     const url = `${this.getBaseUrl(publication)}/drafts`;
 
-    // Debug logging to file - log full body for analysis
-    this.log("DEBUG", "Full draft_body content", {
-      draft_body: body,
-    });
-
-    this.log("INFO", "Creating draft", {
+    const response = await requestUrl({
       url,
-      publication,
-      title,
-      subtitle: subtitle || "(none)",
-      audience,
-      cookieLength: this.cookie.length,
-      cookiePrefix: this.cookie.substring(0, 40) + "...",
-      payloadSize: JSON.stringify(payload).length,
-      bodyBlockCount: body.content?.length || 0,
+      method: "POST",
+      headers: this.getHeaders(),
+      body: JSON.stringify(payload),
     });
 
-    try {
-      const response = await requestUrl({
-        url,
-        method: "POST",
-        headers: this.getHeaders(),
-        body: JSON.stringify(payload),
-      });
-
-      this.log("INFO", "Draft created successfully", {
-        status: response.status,
-        responseKeys: Object.keys(response.json || {}),
-      });
-
-      return response;
-    } catch (error) {
-      const errorDetails = {
-        url,
-        publication,
-        title,
-        headers: { ...this.getHeaders(), Cookie: this.cookie.substring(0, 40) + "..." },
-        payloadPreview: JSON.stringify(payload).substring(0, 500),
-        error: error instanceof Error ? {
-          message: error.message,
-          name: error.name,
-        } : String(error),
-      };
-      this.log("ERROR", "Failed to create draft", errorDetails);
-      throw error;
-    }
-  }
-
-  private log(level: string, message: string, data?: unknown): void {
-    const timestamp = new Date().toISOString();
-    const logLine = `[${timestamp}] [SubstackAPI] [${level}] ${message}`;
-
-    if (data) {
-      console.log(logLine, JSON.stringify(data, null, 2)); // eslint-disable-line no-console
-    } else {
-      console.log(logLine); // eslint-disable-line no-console
-    }
-
-    // Also write to global log array for file persistence
-    if (typeof window !== "undefined") {
-      (window as unknown as { substackApiLogs?: string[] }).substackApiLogs =
-        (window as unknown as { substackApiLogs?: string[] }).substackApiLogs || [];
-      (window as unknown as { substackApiLogs?: string[] }).substackApiLogs!.push(
-        `${logLine} ${data ? JSON.stringify(data) : ""}\n`
-      );
-    }
+    return response;
   }
 
   async publishDraft(
@@ -181,7 +121,7 @@ export class SubstackAPI {
   }
 
   updateCookie(newCookie: string): void {
-    this.cookie = newCookie;
+    this.cookie = this.normalizeCookie(newCookie);
   }
 }
 

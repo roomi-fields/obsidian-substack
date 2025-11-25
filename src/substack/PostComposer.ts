@@ -177,14 +177,7 @@ export class SubstackPostComposer extends Modal {
         throw new Error(`Failed to create draft: ${response.status}`);
       }
     } catch (error) {
-      // Get API logs from window for detailed debugging
-      const apiLogs = (window as unknown as { substackApiLogs?: string[] }).substackApiLogs || [];
       this.logger.error("Failed to create draft", error);
-      if (apiLogs.length > 0) {
-        this.logger.error("API Debug Logs", apiLogs.join(""));
-        // Clear logs after capturing
-        (window as unknown as { substackApiLogs?: string[] }).substackApiLogs = [];
-      }
       const errorMessage = error instanceof Error ? error.message : String(error);
       new Notice(`Failed to save draft: ${errorMessage}`);
       this.setButtonsDisabled(false);
