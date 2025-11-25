@@ -1,140 +1,148 @@
-# Content OS
+# Obsidian Substack Publisher
 
-Post directly to LinkedIn from your vault.
+Publish your Obsidian notes directly to Substack as drafts or published posts.
 
 ## Overview
 
-Content OS is an Obsidian plugin that bridges the gap between your note-taking and content publishing workflows. Create and publish LinkedIn posts directly from Obsidian without switching between applications.
+Obsidian Substack Publisher bridges the gap between your note-taking and newsletter publishing workflows. Create and publish Substack posts directly from Obsidian without switching between applications.
 
 ## Features
 
-- **Seamless Workflow**: Create LinkedIn posts without leaving Obsidian
+- **Seamless Workflow**: Create Substack posts without leaving Obsidian
+- **Draft & Publish**: Create drafts or publish directly
+- **Multi-Publication Support**: Manage multiple Substack publications
+- **Markdown Conversion**: Automatic conversion of Obsidian markdown to Substack format
 - **User-Friendly Interface**: Simple modal for composing and publishing posts
-- **Character Counter**: Real-time character count with LinkedIn limits
 
 ## Quick Start
 
 ### 1. Installation
+
 1. Download the plugin files
-2. Place them in your Obsidian plugins directory: `.obsidian/plugins/content-os/`
+2. Place them in your Obsidian plugins directory: `.obsidian/plugins/obsidian-substack/`
 3. Enable the plugin in Obsidian settings
 
-### 2. LinkedIn Authentication
+### 2. Substack Authentication
+
 1. Open plugin settings
-2. Click "Generate LinkedIn access token"
-3. Complete the login flow in your browser
-4. Copy and paste the access token into the plugin settings
-5. Click "Validate token" to verify the token works
+2. Enter your Substack session cookie (`connect.sid`)
+3. Add your publication URL(s)
+4. Click "Validate" to verify the connection
+
+#### Getting Your Session Cookie
+
+1. Log in to Substack in your browser
+2. Open Developer Tools (F12)
+3. Go to Application > Cookies > substack.com
+4. Copy the value of `substack.sid` or `connect.sid`
 
 ### 3. Create Your First Post
-- Use the ribbon icon (send icon) to open the post composer
-- Or use the command palette: "Create LinkedIn post"
+
+- Use the ribbon icon to open the post composer
+- Or use the command palette: "Create Substack post"
 - Write your content in the modal
-- Click "Post" to publish
+- Choose "Save as Draft" or "Publish"
 
 ## Usage
 
 ### Creating Posts
-1. **Ribbon Icon**: Click the send icon in the left ribbon
-2. **Command Palette**: Search for "Create LinkedIn post"
+
+1. **Ribbon Icon**: Click the Substack icon in the left ribbon
+2. **Command Palette**: Search for "Create Substack post"
 3. **Write Content**: Enter your post content in the modal
-4. **Character Limit**: Stay within LinkedIn's 3000 character limit
-5. **Publish**: Click "Post" to publish immediately
+4. **Select Publication**: Choose target publication (if multiple configured)
+5. **Publish Options**: Save as draft or publish immediately
 
 ### Settings Configuration
-- **LinkedIn Access Token**: Your OAuth token for API access (password field for security)
+
+- **Session Cookie**: Your Substack authentication cookie
+- **Publications**: List of your Substack publication URLs
+- **Default Publication**: Primary publication for quick posting
 - **Dev Mode**: Enable for detailed logging and debugging
-- **Log Level**: Control the verbosity of logs when dev mode is enabled
 
-## Authentication
+## Privacy & Security
 
-Content OS uses LinkedIn's OAuth 2.0 for secure authentication:
-
-1. **Initial Setup**: Generate a token through the OAuth proxy
-2. **Token Storage**: Tokens are stored securely in Obsidian's data storage
-3. **Auto-Validation**: The plugin automatically validates tokens before posting
-4. **User ID Caching**: LinkedIn user IDs are cached to avoid repeated API calls
+- **Local Storage**: All credentials are stored locally in Obsidian
+- **No Data Collection**: This plugin doesn't collect or transmit user data
+- **Cookie Auth**: Uses your existing Substack session (no passwords stored)
 
 ## Development
 
 ### Prerequisites
+
 - Node.js 18+
-- npm or yarn
+- npm
 
 ### Setup
+
 ```bash
 npm install
 npm run dev      # Development with file watching
 npm run build    # Production build
 npm run lint     # Code linting
-npm run typecheck # TypeScript checking
+npm run test     # Run tests
 ```
 
 ### Project Structure
+
 ```
 ├── main.ts                 # Main plugin entry point
 ├── manifest.json           # Plugin metadata
 ├── src/
-│   ├── linkedin/
-│   │   ├── api.ts          # LinkedIn API integration
+│   ├── substack/
+│   │   ├── api.ts          # Substack API integration
+│   │   ├── auth.ts         # Authentication management
+│   │   ├── converter.ts    # Markdown to Substack conversion
 │   │   └── PostComposer.ts # Post creation modal
 │   └── utils/
 │       └── logger.ts       # Logging utility
-└── README.md              # This file
+└── README.md
 ```
-
-## API Integration
-
-Content OS integrates with LinkedIn's v2 API:
-
-- **User Info Endpoint**: `/v2/userinfo` for user identification
-- **Posts Endpoint**: `/v2/posts` for content publishing
-- **OAuth Flow**: Standard OAuth 2.0 with PKCE for security
-
-## Privacy & Security
-
-- **Local Storage**: All tokens are stored locally in Obsidian
-- **No Data Collection**: Content OS doesn't collect or transmit user data
-- **OAuth Security**: Uses industry-standard OAuth 2.0 authentication
-- **Token Validation**: Tokens are validated before each use
-
-### OAuth Host
-- I have a small open source repo [here](https://github.com/eharris128/content-os-linkedin-oauth-proxy) where the LinkedIn OAuth flow is driven from. When a user uses the `Generate LinkedIn access token` button within this app, this is the code standing behind the URL where they are pushed.
 
 ## Troubleshooting
 
 ### Common Issues
 
-**Token Invalid/Expired**
-- Generate a new token through the OAuth flow
-- Ensure you're using the correct LinkedIn account
-- Check that the token hasn't expired
+**Cookie Invalid/Expired**
+- Get a fresh cookie from your browser
+- Ensure you're logged into Substack
+- Cookies typically expire after 30 days
 
 **Post Failed to Publish**
 - Verify your internet connection
-- Check that your LinkedIn account has posting permissions
-- Ensure content doesn't exceed character limits
+- Check that your publication URL is correct
+- Ensure content doesn't violate Substack's guidelines
 
 **Plugin Not Loading**
 - Enable dev mode in settings for detailed logs
 - Check the developer console for error messages
 - Verify plugin files are in the correct directory
 
-### Debug Mode
-Enable dev mode in plugin settings to see detailed logs in the developer console:
-1. Open plugin settings
-2. Toggle "Dev mode" on
-3. Set log level to "Debug"
-4. Check browser developer console for detailed information
+## Limitations
+
+- Uses unofficial Substack API (may break if Substack changes their API)
+- Image upload not yet supported (v1)
+- Scheduling not supported (API limitation)
+
+## Credits
+
+This plugin is built upon:
+
+- [obsidian-content-os](https://github.com/eharris128/obsidian-content-os) by @eharris128 - Obsidian plugin structure
+- [substack-mcp-plus](https://github.com/ty13r/substack-mcp-plus) by @ty13r - Substack API integration
+- [python-substack](https://github.com/ma2za/python-substack) by @ma2za - Unofficial Substack library
+
+All original projects are MIT licensed. See [ATTRIBUTIONS.md](ATTRIBUTIONS.md) for details.
+
+## Disclaimer
+
+This plugin is not affiliated with or endorsed by Substack. It uses unofficial, reverse-engineered API endpoints that may change without notice. Use at your own risk and always consult Substack's Terms of Service.
 
 ## License
 
-MIT License - See LICENSE file for details.
+MIT License - See [LICENSE](LICENSE) file for details.
 
 ## Support
 
 For issues, feature requests, or questions:
-- GitHub Issues: [Report an issue](https://github.com/eharris128/obsidian-content-os/issues)
-
-## Attribution
-- This plugin builds on top of the LinkedIn APIs, but is in no way affiliated or endorsed by LinkedIn.
+- GitHub Issues: [Report an issue](https://github.com/roomi-fields/obsidian-substack/issues)

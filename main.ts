@@ -6,33 +6,32 @@ import {
   Setting
 } from "obsidian";
 import { Logger, LogLevel, createLogger } from "./src/utils/logger";
-import { LinkedInAPI } from "./src/linkedin/api";
-import { LinkedInPostComposer } from "./src/linkedin/PostComposer";
+import { SubstackAPI } from "./src/substack/api";
+import { SubstackPostComposer } from "./src/substack/PostComposer";
 
-interface ContentOSSettings {
+interface SubstackPublisherSettings {
   devMode: boolean;
   logLevel: LogLevel;
-  linkedinAccessToken: string;
-  linkedinPersonUrn: string;
+  substackCookie: string;
+  publications: string[]; // List of publication subdomains
 }
 
-const DEFAULT_SETTINGS: ContentOSSettings = {
+const DEFAULT_SETTINGS: SubstackPublisherSettings = {
   devMode: false,
   logLevel: LogLevel.ERROR,
-  linkedinAccessToken: "",
-  linkedinPersonUrn: ""
+  substackCookie: "",
+  publications: []
 };
 
-export default class ContentOSPlugin extends Plugin {
-  settings!: ContentOSSettings;
+export default class SubstackPublisherPlugin extends Plugin {
+  settings!: SubstackPublisherSettings;
   logger!: Logger | ReturnType<typeof createLogger>;
 
   override async onload() {
     await this.loadSettings();
 
-    // Initialize logger - returns no-op logger when devMode is off
     this.logger = createLogger(
-      "Content OS",
+      "Substack Publisher",
       this.settings.devMode,
       this.settings.logLevel
     );
@@ -42,25 +41,24 @@ export default class ContentOSPlugin extends Plugin {
 
     const ribbonIconEl = this.addRibbonIcon(
       "send",
-      "Create LinkedIn post",
-      (evt: MouseEvent) => {
+      "Publish to Substack",
+      () => {
         this.logger.debug("Ribbon icon clicked");
-        this.createLinkedInPost();
+        this.publishToSubstack();
       }
     );
 
-    ribbonIconEl.addClass("content-os-ribbon-class");
+    ribbonIconEl.addClass("substack-ribbon-class");
 
     this.addCommand({
-      id: "create-linkedin-post",
-      name: "Create LinkedIn post",
+      id: "publish-to-substack",
+      name: "Publish to Substack",
       callback: async () => {
-        await this.createLinkedInPost();
+        await this.publishToSubstack();
       }
     });
 
-
-    this.addSettingTab(new ContentOSSettingTab(this.app, this));
+    this.addSettingTab(new SubstackPublisherSettingTab(this.app, this));
 
     this.logger.info("Plugin initialization completed");
   }
@@ -74,7 +72,7 @@ export default class ContentOSPlugin extends Plugin {
 
     if (this.logger) {
       this.logger = createLogger(
-        "Content OS",
+        "Substack Publisher",
         this.settings.devMode,
         this.settings.logLevel
       );
@@ -86,7 +84,7 @@ export default class ContentOSPlugin extends Plugin {
 
     if (this.logger) {
       this.logger = createLogger(
-        "Content OS",
+        "Substack Publisher",
         this.settings.devMode,
         this.settings.logLevel
       );
@@ -94,48 +92,35 @@ export default class ContentOSPlugin extends Plugin {
     }
   }
 
-  private async createLinkedInPost() {
-    this.logger.logCommandExecution("create-linkedin-post");
+  private async publishToSubstack() {
+    this.logger.logCommandExecution("publish-to-substack");
 
-    if (!this.settings.linkedinAccessToken) {
-      new Notice(
-        "Please configure your LinkedIn access token in settings first"
-      );
+    if (!this.settings.substackCookie) {
+      new Notice("Please configure your Substack cookie in settings first");
       return;
     }
 
-    const api = new LinkedInAPI(this.settings.linkedinAccessToken);
-
-    if (this.settings.linkedinPersonUrn) {
-      api.setPersonUrn(this.settings.linkedinPersonUrn);
-    } else {
-      const isValid = await api.validateToken();
-
-      if (!isValid) {
-        new Notice("LinkedIn token is invalid or expired. Please update it in settings.");
-        return;
-      }
-
-      const personUrn = api.getPersonUrn();
-      if (personUrn) {
-        this.settings.linkedinPersonUrn = personUrn;
-        await this.saveSettings();
-      }
+    if (this.settings.publications.length === 0) {
+      new Notice("Please add at least one publication in settings first");
+      return;
     }
 
-    const composer = new LinkedInPostComposer(
+    const api = new SubstackAPI(this.settings.substackCookie);
+
+    const composer = new SubstackPostComposer(
       this.app,
       api,
+      this.settings.publications,
       this.logger
     );
     composer.open();
   }
 }
 
-class ContentOSSettingTab extends PluginSettingTab {
-  plugin: ContentOSPlugin;
+class SubstackPublisherSettingTab extends PluginSettingTab {
+  plugin: SubstackPublisherPlugin;
 
-  constructor(app: App, plugin: ContentOSPlugin) {
+  constructor(app: App, plugin: SubstackPublisherPlugin) {
     super(app, plugin);
     this.plugin = plugin;
   }
@@ -145,63 +130,45 @@ class ContentOSSettingTab extends PluginSettingTab {
 
     containerEl.empty();
 
+    containerEl.createEl("h2", { text: "Substack Authentication" });
 
     new Setting(containerEl)
-      .setName("Generate LinkedIn access token")
-      .setDesc("Click the button to open your browser and start the login flow")
-      .addButton((button) =>
-        button.setButtonText("Generate LinkedIn access token").onClick(() => {
-          window.open("https://content-os.echarris.workers.dev/", "_blank");
-          new Notice(
-            "Complete the login flow and paste your access token below"
-          );
-        })
-      );
-
-    new Setting(containerEl)
-      .setName("LinkedIn access token")
+      .setName("Substack cookie")
       .setDesc(
-        "Paste your access token here after completing the login flow"
+        "Your Substack session cookie (substack.sid or connect.sid). Get it from browser dev tools."
       )
       .addText((text) => {
         text
-          .setPlaceholder("Enter your access token")
-          .setValue(this.plugin.settings.linkedinAccessToken)
+          .setPlaceholder("Enter your Substack cookie")
+          .setValue(this.plugin.settings.substackCookie)
           .onChange(async (value) => {
-            this.plugin.settings.linkedinAccessToken = value;
-            this.plugin.settings.linkedinPersonUrn = "";
+            this.plugin.settings.substackCookie = value;
             await this.plugin.saveSettings();
           });
         text.inputEl.type = "password";
-      })
-      .addButton((button) =>
-        button.setButtonText("Validate token").onClick(async () => {
-          if (!this.plugin.settings.linkedinAccessToken) {
-            new Notice("Please enter an access token first");
-            return;
-          }
+      });
 
-          const api = new LinkedInAPI(this.plugin.settings.linkedinAccessToken);
+    containerEl.createEl("h2", { text: "Publications" });
 
-          try {
-            const isValid = await api.validateToken();
-            if (isValid) {
-              const personUrn = api.getPersonUrn();
-              if (personUrn) {
-                this.plugin.settings.linkedinPersonUrn = personUrn;
-                await this.plugin.saveSettings();
-              }
-              new Notice("Access token is valid!");
-            } else {
-              new Notice("Access token is invalid or expired");
-            }
-          } catch (error) {
-            const errorMessage =
-              error instanceof Error ? error.message : String(error);
-            new Notice(`Error validating token: ${errorMessage}`);
-          }
-        })
-      );
+    new Setting(containerEl)
+      .setName("Publication subdomains")
+      .setDesc(
+        "Comma-separated list of your Substack publication subdomains (e.g., mypub, anotherpub)"
+      )
+      .addText((text) => {
+        text
+          .setPlaceholder("mypub, anotherpub")
+          .setValue(this.plugin.settings.publications.join(", "))
+          .onChange(async (value) => {
+            this.plugin.settings.publications = value
+              .split(",")
+              .map((s) => s.trim())
+              .filter((s) => s.length > 0);
+            await this.plugin.saveSettings();
+          });
+      });
+
+    containerEl.createEl("h2", { text: "Developer Options" });
 
     new Setting(containerEl)
       .setName("Dev mode")
@@ -223,7 +190,6 @@ class ContentOSSettingTab extends PluginSettingTab {
           })
       );
 
-    // Only show log level setting when dev mode is enabled
     if (this.plugin.settings.devMode) {
       new Setting(containerEl)
         .setName("Log level")
@@ -247,25 +213,25 @@ class ContentOSSettingTab extends PluginSettingTab {
     }
 
     const versionSection = containerEl.createDiv();
-    versionSection.addClass("content-os-version-wrapper");
+    versionSection.addClass("substack-version-wrapper");
 
     const versionContent = versionSection.createEl("div", {
-      attr: { class: "content-os-version-content" }
+      attr: { class: "substack-version-content" }
     });
 
     versionContent.createEl("p", {
-      text: "Content OS",
-      attr: { class: "content-os-version-name" }
+      text: "Substack Publisher",
+      attr: { class: "substack-version-name" }
     });
 
     versionContent.createEl("p", {
-      text: "By eharris128",
-      attr: { class: "content-os-version-author" }
+      text: "By Romi",
+      attr: { class: "substack-version-author" }
     });
 
     const versionNumber = versionContent.createEl("span", {
       text: `v${this.plugin.manifest.version}`,
-      attr: { class: "content-os-version-number" }
+      attr: { class: "substack-version-number" }
     });
     versionContent.appendChild(versionNumber);
   }

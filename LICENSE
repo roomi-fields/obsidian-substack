@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2025 Evan Harris
+Copyright (c) 2025 Romi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,22 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+This project incorporates code from:
+
+1. obsidian-content-os
+   Copyright (c) 2025 Evan Harris (eharris128)
+   MIT License
+   https://github.com/eharris128/obsidian-content-os
+
+2. substack-mcp-plus
+   Copyright (c) 2025 ty13r
+   MIT License
+   https://github.com/ty13r/substack-mcp-plus
+
+3. python-substack
+   Copyright (c) ma2za
+   MIT License
+   https://github.com/ma2za/python-substack

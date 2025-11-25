@@ -1,7 +1,7 @@
 {
-	"name": "content-os",
-	"version": "1.0.3",
-	"description": "Post directly to LinkedIn from your vault.",
+	"name": "obsidian-substack",
+	"version": "1.0.0",
+	"description": "Publish your Obsidian notes directly to Substack as drafts or published posts.",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {
@@ -20,12 +20,12 @@
 	"keywords": [
 		"obsidian",
 		"obsidian-plugin",
-		"linkedin",
-		"social-media",
-		"content-publishing",
-		"productivity"
+		"substack",
+		"newsletter",
+		"publishing",
+		"markdown"
 	],
-	"author": "eharris128",
+	"author": "Romi",
 	"license": "MIT",
 	"engines": {
 		"node": ">=18.0.0"
@@ -36,7 +36,7 @@
 		"@typescript-eslint/eslint-plugin": "^8.34.1",
 		"@typescript-eslint/parser": "^8.34.1",
 		"@vitest/coverage-v8": "^3.2.4",
-		"builtin-modules": "^5.0.0",
+		"builtin-modules": "^3.3.0",
 		"esbuild": "^0.25.5",
 		"eslint": "^9.29.0",
 		"jsdom": "^26.0.0",
@@ -46,10 +46,10 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/eharris128/obsidian-content-os"
+		"url": "https://github.com/roomi-fields/obsidian-substack"
 	},
 	"bugs": {
-		"url": "https://github.com/eharris128/obsidian-content-os/issues"
+		"url": "https://github.com/roomi-fields/obsidian-substack/issues"
 	},
-	"homepage": "https://github.com/eharris128/obsidian-content-os#readme"
+	"homepage": "https://github.com/roomi-fields/obsidian-substack#readme"
 }
