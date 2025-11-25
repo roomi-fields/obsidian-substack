@@ -1,6 +1,7 @@
 import {
   App,
   Notice,
+  Platform,
   Plugin,
   PluginSettingTab,
   Setting
@@ -8,12 +9,13 @@ import {
 import { Logger, LogLevel, createLogger } from "./src/utils/logger";
 import { SubstackAPI } from "./src/substack/api";
 import { SubstackPostComposer } from "./src/substack/PostComposer";
+import { SubstackAuth } from "./src/substack/auth";
 
 interface SubstackPublisherSettings {
   devMode: boolean;
   logLevel: LogLevel;
   substackCookie: string;
-  publications: string[]; // List of publication subdomains
+  publications: string[];
 }
 
 const DEFAULT_SETTINGS: SubstackPublisherSettings = {
@@ -36,19 +38,16 @@ export default class SubstackPublisherPlugin extends Plugin {
       this.settings.logLevel
     );
 
-    // Pass app reference for file logging
     if ("setApp" in this.logger) {
       this.logger.setApp(this.app);
     }
 
     this.logger.logPluginLoad();
-    this.logger.debug("Settings loaded", this.settings);
 
     const ribbonIconEl = this.addRibbonIcon(
       "send",
       "Publish to Substack",
       () => {
-        this.logger.debug("Ribbon icon clicked");
         this.publishToSubstack();
       }
     );
@@ -64,8 +63,6 @@ export default class SubstackPublisherPlugin extends Plugin {
     });
 
     this.addSettingTab(new SubstackPublisherSettingTab(this.app, this));
-
-    this.logger.info("Plugin initialization completed");
   }
 
   override onunload() {
@@ -93,7 +90,6 @@ export default class SubstackPublisherPlugin extends Plugin {
         this.settings.devMode,
         this.settings.logLevel
       );
-      this.logger.debug("Settings saved");
     }
   }
 
@@ -101,7 +97,7 @@ export default class SubstackPublisherPlugin extends Plugin {
     this.logger.logCommandExecution("publish-to-substack");
 
     if (!this.settings.substackCookie) {
-      new Notice("Please configure your Substack cookie in settings first");
+      new Notice("Please configure your Substack authentication in settings first");
       return;
     }
 
@@ -137,14 +133,41 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
 
     containerEl.createEl("h2", { text: "Substack Authentication" });
 
-    new Setting(containerEl)
-      .setName("Substack cookie")
+    // Login button (desktop only)
+    if (Platform.isDesktop) {
+      const authStatus = this.plugin.settings.substackCookie
+        ? "✓ Logged in"
+        : "Not logged in";
+
+      new Setting(containerEl)
+        .setName("Login to Substack")
+        .setDesc(`${authStatus}. Click to open Substack login window and automatically capture your session.`)
+        .addButton((button) => {
+          button
+            .setButtonText(this.plugin.settings.substackCookie ? "Re-login" : "Login")
+            .setCta()
+            .onClick(async () => {
+              const auth = new SubstackAuth(async (cookie) => {
+                this.plugin.settings.substackCookie = cookie;
+                await this.plugin.saveSettings();
+                this.display(); // Refresh UI
+              });
+              await auth.login();
+            });
+        });
+    }
+
+    // Manual cookie input (always available, collapsed by default on desktop)
+    const manualSetting = new Setting(containerEl)
+      .setName("Manual cookie entry")
       .setDesc(
-        "Your Substack session cookie (substack.sid). Get it from browser dev tools → Application → Cookies → substack.com"
+        Platform.isDesktop
+          ? "Alternative: paste your cookie manually if auto-login doesn't work"
+          : "Paste your Substack session cookie (substack.sid) from browser DevTools → Application → Cookies"
       )
       .addText((text) => {
         text
-          .setPlaceholder("Enter your Substack cookie value")
+          .setPlaceholder("substack.sid=...")
           .setValue(this.plugin.settings.substackCookie)
           .onChange(async (value) => {
             this.plugin.settings.substackCookie = value;
@@ -152,6 +175,11 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
           });
         text.inputEl.style.width = "100%";
       });
+
+    // On desktop, make manual entry less prominent
+    if (Platform.isDesktop) {
+      manualSetting.settingEl.style.opacity = "0.7";
+    }
 
     containerEl.createEl("h2", { text: "Publications" });
 
@@ -217,6 +245,7 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
         );
     }
 
+    // Version info
     const versionSection = containerEl.createDiv();
     versionSection.addClass("substack-version-wrapper");
 
@@ -234,10 +263,9 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
       attr: { class: "substack-version-author" }
     });
 
-    const versionNumber = versionContent.createEl("span", {
+    versionContent.createEl("span", {
       text: `v${this.plugin.manifest.version}`,
       attr: { class: "substack-version-number" }
     });
-    versionContent.appendChild(versionNumber);
   }
 }

@@ -174,7 +174,7 @@ export class SubstackPostComposer extends Modal {
         new Notice("Draft saved to Substack!");
         this.close();
       } else {
-        throw new Error(`Failed to create draft: ${response.status}`);
+        throw new Error(this.getErrorMessage(response.status));
       }
     } catch (error) {
       this.logger.error("Failed to create draft", error);
@@ -213,7 +213,7 @@ export class SubstackPostComposer extends Modal {
       );
 
       if (draftResponse.status !== 200 && draftResponse.status !== 201) {
-        throw new Error(`Failed to create draft: ${draftResponse.status}`);
+        throw new Error(this.getErrorMessage(draftResponse.status));
       }
 
       const draftId = draftResponse.json.id;
@@ -229,13 +229,31 @@ export class SubstackPostComposer extends Modal {
         new Notice("Published to Substack!");
         this.close();
       } else {
-        throw new Error(`Failed to publish: ${publishResponse.status}`);
+        throw new Error(this.getErrorMessage(publishResponse.status, "publish"));
       }
     } catch (error) {
       this.logger.error("Failed to publish", error);
       const errorMessage = error instanceof Error ? error.message : String(error);
       new Notice(`Failed to publish: ${errorMessage}`);
       this.setButtonsDisabled(false);
+    }
+  }
+
+  private getErrorMessage(status: number, action: string = "create draft"): string {
+    switch (status) {
+      case 401:
+      case 403:
+        return "Session expired or invalid. Please login again in Settings.";
+      case 404:
+        return `Publication not found. Check your publication name in Settings.`;
+      case 429:
+        return "Too many requests. Please wait a moment and try again.";
+      case 500:
+      case 502:
+      case 503:
+        return "Substack is temporarily unavailable. Please try again later.";
+      default:
+        return `Failed to ${action} (error ${status})`;
     }
   }
 
