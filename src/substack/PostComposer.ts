@@ -25,7 +25,13 @@ export class SubstackPostComposer extends Modal {
     this.publications = publications;
     this.logger = logger;
     this.converter = new MarkdownConverter();
-    this.selectedPublication = publications[0] || "";
+
+    // Ensure we have at least one publication
+    const firstPublication = publications[0];
+    if (!firstPublication) {
+      throw new Error("At least one publication is required");
+    }
+    this.selectedPublication = firstPublication;
   }
 
   override onOpen() {

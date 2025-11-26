@@ -45,8 +45,8 @@ export class SubstackAuth {
 
     try {
       // Dynamic import of Electron to avoid errors on mobile
-
-      const electron = require("electron");
+      // Use window.require for Obsidian's Electron environment
+      const electron = window.require("electron");
       const { BrowserWindow } = electron.remote || electron;
 
       if (!BrowserWindow) {

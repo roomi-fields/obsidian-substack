@@ -63,7 +63,8 @@ export class SubstackAPI {
       url,
       method: "POST",
       headers: this.getHeaders(),
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      throw: false
     });
 
     return response;
@@ -76,7 +77,8 @@ export class SubstackAPI {
     const response = await requestUrl({
       url: `${this.getBaseUrl(publication)}/drafts/${draftId}/publish`,
       method: "POST",
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      throw: false
     });
 
     return response;
@@ -86,7 +88,8 @@ export class SubstackAPI {
     const response = await requestUrl({
       url: `${this.getBaseUrl(publication)}/drafts`,
       method: "GET",
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      throw: false
     });
 
     return response;
@@ -101,7 +104,8 @@ export class SubstackAPI {
       url: `${this.getBaseUrl(publication)}/drafts/${draftId}`,
       method: "PUT",
       headers: this.getHeaders(),
-      body: JSON.stringify(updates)
+      body: JSON.stringify(updates),
+      throw: false
     });
 
     return response;
@@ -114,7 +118,8 @@ export class SubstackAPI {
     const response = await requestUrl({
       url: `${this.getBaseUrl(publication)}/drafts/${draftId}`,
       method: "GET",
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      throw: false
     });
 
     return response;
