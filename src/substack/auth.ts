@@ -45,6 +45,7 @@ export class SubstackAuth {
 
     try {
       // Dynamic import of Electron to avoid errors on mobile
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- Electron requires CommonJS dynamic import at runtime
       const electron = require("electron");
       const { BrowserWindow } = electron.remote || electron;
 
@@ -109,45 +110,46 @@ export class SubstackAuth {
             return true;
           }
         } catch (e) {
-          console.error("Cookie check error:", e);
+          console.error("Cookie check error:", e); // eslint-disable-line no-console -- Error logging for auth debugging
         }
         return false;
       };
 
       // Check after navigation
-      const checkIfAuthenticated = async (url: string) => {
+      const checkIfAuthenticated = (url: string): void => {
         // Check on any page that's not the sign-in page
         if (!url.includes("sign-in") && !url.includes("magic-link")) {
           // Wait for cookies to be fully set
-          setTimeout(async () => {
-            const found = await checkCookie();
-            if (!found) {
-              // Retry after another delay
-              setTimeout(async () => {
-                await checkCookie();
-              }, 2000);
-            }
+          setTimeout(() => {
+            void checkCookie().then((found) => {
+              if (!found) {
+                // Retry after another delay
+                setTimeout(() => {
+                  void checkCookie();
+                }, 2000);
+              }
+            });
           }, 1500);
         }
       };
 
-      authWindow.webContents.on("did-navigate", async (event: unknown, url: string) => {
-        await checkIfAuthenticated(url);
+      authWindow.webContents.on("did-navigate", (_event: unknown, url: string) => {
+        checkIfAuthenticated(url);
       });
 
-      authWindow.webContents.on("did-navigate-in-page", async (event: unknown, url: string) => {
-        await checkIfAuthenticated(url);
+      authWindow.webContents.on("did-navigate-in-page", (_event: unknown, url: string) => {
+        checkIfAuthenticated(url);
       });
 
       // Also check periodically as fallback
-      const intervalId = setInterval(async () => {
+      const intervalId = setInterval(() => {
         if (authWindow.isDestroyed() || cookieCaptured) {
           clearInterval(intervalId);
           return;
         }
         const currentUrl = authWindow.webContents.getURL();
         if (!currentUrl.includes("sign-in") && !currentUrl.includes("magic-link")) {
-          await checkCookie();
+          void checkCookie();
         }
       }, 3000);
 
@@ -163,7 +165,7 @@ export class SubstackAuth {
       authWindow.loadURL("https://substack.com/sign-in");
 
     } catch (error) {
-      console.error("Auth error:", error);
+      console.error("Auth error:", error); // eslint-disable-line no-console -- Error logging for auth debugging
       new Notice("Failed to open login window. Please copy your cookie manually.");
     }
   }

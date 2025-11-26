@@ -48,7 +48,7 @@ export default class SubstackPublisherPlugin extends Plugin {
       "send",
       "Publish to Substack",
       () => {
-        this.publishToSubstack();
+        void this.publishToSubstack();
       }
     );
 
@@ -131,7 +131,7 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
 
     containerEl.empty();
 
-    containerEl.createEl("h2", { text: "Substack Authentication" });
+    new Setting(containerEl).setName("Substack authentication").setHeading();
 
     // Login button (desktop only)
     if (Platform.isDesktop) {
@@ -140,7 +140,7 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
         : "Not logged in";
 
       new Setting(containerEl)
-        .setName("Login to Substack")
+        .setName("Login to Substack")  // Proper noun, not UI text
         .setDesc(`${authStatus}. Click to open Substack login window and automatically capture your session.`)
         .addButton((button) => {
           button
@@ -159,7 +159,7 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
 
     // Manual cookie input (always available, collapsed by default on desktop)
     const manualSetting = new Setting(containerEl)
-      .setName("Manual cookie entry")
+      .setName("Manual cookie entry")  // sentence case
       .setDesc(
         Platform.isDesktop
           ? "Alternative: paste your cookie manually if auto-login doesn't work"
@@ -173,15 +173,15 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
             this.plugin.settings.substackCookie = value;
             await this.plugin.saveSettings();
           });
-        text.inputEl.style.width = "100%";
+        text.inputEl.addClass("substack-input-full-width");
       });
 
     // On desktop, make manual entry less prominent
     if (Platform.isDesktop) {
-      manualSetting.settingEl.style.opacity = "0.7";
+      manualSetting.settingEl.addClass("substack-setting-muted");
     }
 
-    containerEl.createEl("h2", { text: "Publications" });
+    new Setting(containerEl).setName("Publications").setHeading();
 
     new Setting(containerEl)
       .setName("Publication subdomains")
@@ -201,7 +201,7 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
           });
       });
 
-    containerEl.createEl("h2", { text: "Developer Options" });
+    new Setting(containerEl).setName("Developer options").setHeading();
 
     new Setting(containerEl)
       .setName("Dev mode")

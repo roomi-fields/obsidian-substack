@@ -113,14 +113,14 @@ export class Logger {
       }
     } catch (e) {
       // Fallback to console if file write fails
-      console.error("Failed to write to log file:", e); // eslint-disable-line no-console
+      console.error("Failed to write to log file:", e); // eslint-disable-line no-console -- Fallback logging when file write fails
     }
   }
 
   debug(message: string, ...args: unknown[]): void {
     if (this.shouldLog(LogLevel.DEBUG)) {
       const formatted = this.formatMessage("DEBUG", message);
-      console.log(formatted, ...args); // eslint-disable-line no-console
+      console.log(formatted, ...args); // eslint-disable-line no-console -- Logger output method
       this.writeToFile(formatted, args.length > 0 ? args : undefined);
     }
   }
@@ -128,7 +128,7 @@ export class Logger {
   info(message: string, ...args: unknown[]): void {
     if (this.shouldLog(LogLevel.INFO)) {
       const formatted = this.formatMessage("INFO", message);
-      console.info(formatted, ...args);  // eslint-disable-line no-console
+      console.info(formatted, ...args);  // eslint-disable-line no-console -- Logger output method
       this.writeToFile(formatted, args.length > 0 ? args : undefined);
     }
   }
@@ -136,7 +136,7 @@ export class Logger {
   warn(message: string, ...args: unknown[]): void {
     if (this.shouldLog(LogLevel.WARN)) {
       const formatted = this.formatMessage("WARN", message);
-      console.warn(formatted, ...args);  // eslint-disable-line no-console
+      console.warn(formatted, ...args);  // eslint-disable-line no-console -- Logger output method
       this.writeToFile(formatted, args.length > 0 ? args : undefined);
     }
   }
@@ -145,7 +145,7 @@ export class Logger {
     if (this.shouldLog(LogLevel.ERROR)) {
       const formatted = this.formatMessage("ERROR", message);
       if (error) {
-        console.error(formatted, error);  // eslint-disable-line no-console
+        console.error(formatted, error);  // eslint-disable-line no-console -- Logger output method
         // Serialize error for file
         let errorData: unknown;
         if (error instanceof Error) {
@@ -159,7 +159,7 @@ export class Logger {
         }
         this.writeToFile(formatted, errorData);
       } else {
-        console.error(formatted);  // eslint-disable-line no-console
+        console.error(formatted);  // eslint-disable-line no-console -- Logger output method
         this.writeToFile(formatted);
       }
     }
@@ -168,26 +168,26 @@ export class Logger {
   // Performance timing utilities
   time(foo: string): void {
     if (this.devMode) {
-      console.time(this.formatMessage("TIMER", `${foo} - start`));  // eslint-disable-line no-console
+      console.time(this.formatMessage("TIMER", `${foo} - start`));  // eslint-disable-line no-console -- Logger timing method
     }
   }
 
   timeEnd(label: string): void {
     if (this.devMode) {
-      console.timeEnd(this.formatMessage("TIMER", `${label} - start`)); // eslint-disable-line no-console
+      console.timeEnd(this.formatMessage("TIMER", `${label} - start`)); // eslint-disable-line no-console -- Logger timing method
     }
   }
 
   // Log grouping for organizing related logs
   group(title: string): void {
     if (this.devMode) {
-      console.group(this.formatMessage("GROUP", title)); // eslint-disable-line no-console
+      console.group(this.formatMessage("GROUP", title)); // eslint-disable-line no-console -- Logger grouping method
     }
   }
 
   groupEnd(): void {
     if (this.devMode) {
-      console.groupEnd(); // eslint-disable-line no-console
+      console.groupEnd(); // eslint-disable-line no-console -- Logger grouping method
     }
   }
 
@@ -197,7 +197,7 @@ export class Logger {
       if (title) {
         this.debug(title);
       }
-      console.table(data); // eslint-disable-line no-console
+      console.table(data); // eslint-disable-line no-console -- Logger table output method
     }
   }
 

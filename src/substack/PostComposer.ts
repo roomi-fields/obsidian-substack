@@ -1,4 +1,4 @@
-import { App, Modal, Notice } from "obsidian";
+import { App, Modal, Notice, Setting } from "obsidian";
 import { SubstackAPI } from "./api";
 import { MarkdownConverter } from "./converter";
 import { createLogger } from "../utils/logger";
@@ -31,7 +31,7 @@ export class SubstackPostComposer extends Modal {
   override onOpen() {
     const { contentEl } = this;
 
-    contentEl.createEl("h2", { text: "Publish to Substack" });
+    new Setting(contentEl).setName("Publish to Substack").setHeading();
 
     // Publication selector
     const pubContainer = contentEl.createDiv({ cls: "substack-field-container" });
@@ -88,7 +88,7 @@ export class SubstackPostComposer extends Modal {
     const preview = previewContainer.createEl("div", { cls: "substack-preview" });
 
     if (activeFile) {
-      this.app.vault.cachedRead(activeFile).then((content) => {
+      void this.app.vault.cachedRead(activeFile).then((content) => {
         // Remove frontmatter for preview
         const cleanContent = content.replace(/^---[\s\S]*?---\n?/, "");
         preview.textContent = cleanContent.slice(0, 500) + (cleanContent.length > 500 ? "..." : "");

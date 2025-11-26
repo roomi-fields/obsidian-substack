@@ -82,6 +82,16 @@
     opacity: 0.8;
 }
 
+/* Input full width */
+.substack-input-full-width {
+    width: 100%;
+}
+
+/* Muted setting for less prominent options */
+.substack-setting-muted {
+    opacity: 0.7;
+}
+
 /* Post Composer Modal styling */
 .substack-field-container {
     margin-bottom: 1rem;
