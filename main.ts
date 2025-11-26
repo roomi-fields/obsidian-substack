@@ -157,7 +157,7 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
         });
     }
 
-    // Manual cookie input (always available, collapsed by default on desktop)
+    // Manual cookie input (always available as fallback)
     const manualSetting = new Setting(containerEl)
       .setName("Manual cookie entry")
       .setDesc(

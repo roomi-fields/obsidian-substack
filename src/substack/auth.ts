@@ -163,28 +163,9 @@ export class SubstackAuth {
       // Load Substack login page
       authWindow.loadURL("https://substack.com/sign-in");
 
-    } catch {
-      new Notice("Failed to open login window. Please copy your cookie manually.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      new Notice(`Failed to open login window: ${message}. Please copy your cookie manually.`);
     }
-  }
-}
-
-/**
- * Validate an existing cookie - can be used to check if saved cookie is still valid
- */
-export async function validateSubstackCookie(cookie: string): Promise<boolean> {
-  if (!cookie) return false;
-
-  try {
-    const response = await requestUrl({
-      url: "https://substack.com/api/v1/user/profile",
-      method: "GET",
-      headers: {
-        Cookie: cookie
-      }
-    });
-    return response.status === 200;
-  } catch {
-    return false;
   }
 }

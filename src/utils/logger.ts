@@ -8,7 +8,7 @@ export enum LogLevel {
 }
 
 const LOG_FILE = "substack-publisher.log";
-const MAX_LOG_SIZE = 100000; // ~100KB, truncate if larger
+const MAX_LOG_SIZE = 100000; // 100k chars, truncate if larger
 
 // No-op logger that does nothing
 class NoOpLogger {
