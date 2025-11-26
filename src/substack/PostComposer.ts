@@ -31,7 +31,7 @@ export class SubstackPostComposer extends Modal {
   override onOpen() {
     const { contentEl } = this;
 
-    new Setting(contentEl).setName("Publish to Substack").setHeading();
+    new Setting(contentEl).setName("Publish").setHeading();
 
     // Publication selector
     const pubContainer = contentEl.createDiv({ cls: "substack-field-container" });
@@ -71,7 +71,7 @@ export class SubstackPostComposer extends Modal {
 
     // Subtitle input
     const subtitleContainer = contentEl.createDiv({ cls: "substack-field-container" });
-    subtitleContainer.createEl("label", { text: "Subtitle (optional)" });
+    subtitleContainer.createEl("label", { text: "Subtitle" });
     const subtitleInput = subtitleContainer.createEl("input", {
       type: "text",
       placeholder: "Post subtitle",
@@ -84,7 +84,7 @@ export class SubstackPostComposer extends Modal {
 
     // Content preview
     const previewContainer = contentEl.createDiv({ cls: "substack-preview-container" });
-    previewContainer.createEl("label", { text: "Content preview" });
+    previewContainer.createEl("label", { text: "Preview" });
     const preview = previewContainer.createEl("div", { cls: "substack-preview" });
 
     if (activeFile) {
@@ -108,7 +108,7 @@ export class SubstackPostComposer extends Modal {
     });
 
     this.draftButton = buttonContainer.createEl("button", {
-      text: "Save as Draft",
+      text: "Save as draft",
       cls: "substack-draft-button"
     });
     this.draftButton.addEventListener("click", async () => {
@@ -261,7 +261,7 @@ export class SubstackPostComposer extends Modal {
     if (this.draftButton) {
       this.draftButton.disabled = disabled;
       if (text) this.draftButton.textContent = text;
-      else this.draftButton.textContent = "Save as Draft";
+      else this.draftButton.textContent = "Save as draft";
     }
     if (this.publishButton) {
       this.publishButton.disabled = disabled;

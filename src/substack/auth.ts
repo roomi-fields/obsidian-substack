@@ -21,7 +21,7 @@ export class SubstackAuth {
    * Validate that a cookie provides a valid authenticated session
    * Tests against the user's publication drafts endpoint
    */
-  private async validateSession(cookie: string): Promise<boolean> {
+  private validateSession(cookie: string): boolean {
     // Skip validation for now - just check we have a cookie value
     // The real validation will happen when user tries to publish
     return cookie.includes("substack.sid=") && cookie.length > 30;
@@ -97,8 +97,8 @@ export class SubstackAuth {
 
             const cookieValue = relevantCookies || `substack.sid=${sidCookie.value}`;
 
-            // Validate the session by making a test API call
-            const isValid = await this.validateSession(cookieValue);
+            // Validate the session
+            const isValid = this.validateSession(cookieValue);
             if (!isValid) {
               return false;
             }
@@ -109,8 +109,8 @@ export class SubstackAuth {
             authWindow.close();
             return true;
           }
-        } catch (e) {
-          console.error("Cookie check error:", e); // eslint-disable-line no-console -- Error logging for auth debugging
+        } catch {
+          // Silently fail - cookie not ready yet
         }
         return false;
       };
@@ -164,8 +164,7 @@ export class SubstackAuth {
       // Load Substack login page
       authWindow.loadURL("https://substack.com/sign-in");
 
-    } catch (error) {
-      console.error("Auth error:", error); // eslint-disable-line no-console -- Error logging for auth debugging
+    } catch {
       new Notice("Failed to open login window. Please copy your cookie manually.");
     }
   }

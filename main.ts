@@ -131,7 +131,7 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
 
     containerEl.empty();
 
-    new Setting(containerEl).setName("Substack authentication").setHeading();
+    new Setting(containerEl).setName("Authentication").setHeading();
 
     // Login button (desktop only)
     if (Platform.isDesktop) {
@@ -140,7 +140,7 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
         : "Not logged in";
 
       new Setting(containerEl)
-        .setName("Login to Substack")  // Proper noun, not UI text
+        .setName("Login")
         .setDesc(`${authStatus}. Click to open Substack login window and automatically capture your session.`)
         .addButton((button) => {
           button
@@ -159,7 +159,7 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
 
     // Manual cookie input (always available, collapsed by default on desktop)
     const manualSetting = new Setting(containerEl)
-      .setName("Manual cookie entry")  // sentence case
+      .setName("Manual cookie entry")
       .setDesc(
         Platform.isDesktop
           ? "Alternative: paste your cookie manually if auto-login doesn't work"
@@ -201,7 +201,7 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
           });
       });
 
-    new Setting(containerEl).setName("Developer options").setHeading();
+    new Setting(containerEl).setName("Developer").setHeading();
 
     new Setting(containerEl)
       .setName("Dev mode")

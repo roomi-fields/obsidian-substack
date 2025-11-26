@@ -1,10 +1,10 @@
 import { App, TFile } from "obsidian";
 
 export enum LogLevel {
-	DEBUG = 0,
-	INFO = 1,
-	WARN = 2,
-	ERROR = 3
+  DEBUG = 0,
+  INFO = 1,
+  WARN = 2,
+  ERROR = 3
 }
 
 const LOG_FILE = "substack-publisher.log";
@@ -12,22 +12,22 @@ const MAX_LOG_SIZE = 100000; // ~100KB, truncate if larger
 
 // No-op logger that does nothing
 class NoOpLogger {
-  setDevMode(_devMode: boolean): void {}
-  setApp(_app: App): void {}
-  debug(_message: string, ..._args: unknown[]): void {}
-  info(_message: string, ..._args: unknown[]): void {}
-  warn(_message: string, ..._args: unknown[]): void {}
-  error(_message: string, _error?: unknown): void {}
-  time(_label: string): void {}
-  timeEnd(_label: string): void {}
-  group(_title: string): void {}
-  groupEnd(): void {}
-  table(_data: unknown, _title?: string): void {}
-  logPluginLoad(): void {}
-  logPluginUnload(): void {}
-  logCommandExecution(_commandId: string): void {}
-  logSettingsChange(_setting: string, _oldValue: unknown, _newValue: unknown): void {}
-  setLogLevel(_logLevel: LogLevel): void {}
+  setDevMode(_devMode: boolean): void { /* no-op */ }
+  setApp(_app: App): void { /* no-op */ }
+  debug(_message: string, ..._args: unknown[]): void { /* no-op */ }
+  info(_message: string, ..._args: unknown[]): void { /* no-op */ }
+  warn(_message: string, ..._args: unknown[]): void { /* no-op */ }
+  error(_message: string, _error?: unknown): void { /* no-op */ }
+  time(_label: string): void { /* no-op */ }
+  timeEnd(_label: string): void { /* no-op */ }
+  group(_title: string): void { /* no-op */ }
+  groupEnd(): void { /* no-op */ }
+  table(_data: unknown, _title?: string): void { /* no-op */ }
+  logPluginLoad(): void { /* no-op */ }
+  logPluginUnload(): void { /* no-op */ }
+  logCommandExecution(_commandId: string): void { /* no-op */ }
+  logSettingsChange(_setting: string, _oldValue: unknown, _newValue: unknown): void { /* no-op */ }
+  setLogLevel(_logLevel: LogLevel): void { /* no-op */ }
 }
 
 export class Logger {
@@ -36,7 +36,7 @@ export class Logger {
   private logLevel: LogLevel;
   private app: App | null = null;
   private logBuffer: string[] = [];
-  private flushTimeout: NodeJS.Timeout | null = null;
+  private flushTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(name: string, devMode: boolean = false, logLevel: LogLevel = LogLevel.INFO) {
     this.name = name;
@@ -65,13 +65,13 @@ export class Logger {
     return level >= this.logLevel;
   }
 
-  private async writeToFile(formattedMessage: string, data?: unknown): Promise<void> {
+  private writeToFile(formattedMessage: string, data?: unknown): void {
     if (!this.app) return;
 
     let logLine = formattedMessage;
     if (data !== undefined) {
       try {
-        logLine += ` ${  JSON.stringify(data, null, 0)}`;
+        logLine += ` ${JSON.stringify(data, null, 0)}`;
       } catch {
         logLine += " [unserializable data]";
       }
@@ -84,7 +84,9 @@ export class Logger {
     if (this.flushTimeout) {
       clearTimeout(this.flushTimeout);
     }
-    this.flushTimeout = setTimeout(() => this.flushLogs(), 500);
+    this.flushTimeout = setTimeout(() => {
+      void this.flushLogs();
+    }, 500);
   }
 
   private async flushLogs(): Promise<void> {
@@ -104,23 +106,21 @@ export class Logger {
         if (content.length > MAX_LOG_SIZE) {
           const lines = content.split("\n");
           content = lines.slice(Math.floor(lines.length / 2)).join("\n");
-          content = `[... truncated ...]\n${  content}`;
+          content = `[... truncated ...]\n${content}`;
         }
 
         await vault.modify(logFile, content + logsToWrite);
       } else {
         await vault.create(LOG_FILE, logsToWrite);
       }
-    } catch (e) {
-      // Fallback to console if file write fails
-      console.error("Failed to write to log file:", e); // eslint-disable-line no-console -- Fallback logging when file write fails
+    } catch {
+      // Silently fail - we can't log errors about logging
     }
   }
 
   debug(message: string, ...args: unknown[]): void {
     if (this.shouldLog(LogLevel.DEBUG)) {
       const formatted = this.formatMessage("DEBUG", message);
-      console.log(formatted, ...args); // eslint-disable-line no-console -- Logger output method
       this.writeToFile(formatted, args.length > 0 ? args : undefined);
     }
   }
@@ -128,7 +128,6 @@ export class Logger {
   info(message: string, ...args: unknown[]): void {
     if (this.shouldLog(LogLevel.INFO)) {
       const formatted = this.formatMessage("INFO", message);
-      console.info(formatted, ...args);  // eslint-disable-line no-console -- Logger output method
       this.writeToFile(formatted, args.length > 0 ? args : undefined);
     }
   }
@@ -136,7 +135,6 @@ export class Logger {
   warn(message: string, ...args: unknown[]): void {
     if (this.shouldLog(LogLevel.WARN)) {
       const formatted = this.formatMessage("WARN", message);
-      console.warn(formatted, ...args);  // eslint-disable-line no-console -- Logger output method
       this.writeToFile(formatted, args.length > 0 ? args : undefined);
     }
   }
@@ -145,7 +143,6 @@ export class Logger {
     if (this.shouldLog(LogLevel.ERROR)) {
       const formatted = this.formatMessage("ERROR", message);
       if (error) {
-        console.error(formatted, error);  // eslint-disable-line no-console -- Logger output method
         // Serialize error for file
         let errorData: unknown;
         if (error instanceof Error) {
@@ -159,35 +156,34 @@ export class Logger {
         }
         this.writeToFile(formatted, errorData);
       } else {
-        console.error(formatted);  // eslint-disable-line no-console -- Logger output method
         this.writeToFile(formatted);
       }
     }
   }
 
-  // Performance timing utilities
-  time(foo: string): void {
+  // Performance timing utilities - write to file only
+  time(_label: string): void {
     if (this.devMode) {
-      console.time(this.formatMessage("TIMER", `${foo} - start`));  // eslint-disable-line no-console -- Logger timing method
+      this.debug(`Timer start: ${_label}`);
     }
   }
 
   timeEnd(label: string): void {
     if (this.devMode) {
-      console.timeEnd(this.formatMessage("TIMER", `${label} - start`)); // eslint-disable-line no-console -- Logger timing method
+      this.debug(`Timer end: ${label}`);
     }
   }
 
   // Log grouping for organizing related logs
   group(title: string): void {
     if (this.devMode) {
-      console.group(this.formatMessage("GROUP", title)); // eslint-disable-line no-console -- Logger grouping method
+      this.debug(`--- ${title} ---`);
     }
   }
 
   groupEnd(): void {
     if (this.devMode) {
-      console.groupEnd(); // eslint-disable-line no-console -- Logger grouping method
+      this.debug("--- end ---");
     }
   }
 
@@ -197,7 +193,7 @@ export class Logger {
       if (title) {
         this.debug(title);
       }
-      console.table(data); // eslint-disable-line no-console -- Logger table output method
+      this.debug("Table data", data);
     }
   }
 
@@ -212,7 +208,7 @@ export class Logger {
     if (this.flushTimeout) {
       clearTimeout(this.flushTimeout);
     }
-    this.flushLogs();
+    void this.flushLogs();
   }
 
   logCommandExecution(commandId: string): void {
