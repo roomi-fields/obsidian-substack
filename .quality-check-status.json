@@ -1,0 +1,61 @@
+{
+  "timestamp": "2025-11-27T09:37:00Z",
+  "project": "substack-publisher",
+  "version": "1.0.6",
+  "results": {
+    "eslint": { "status": "PASS", "errors": 0, "warnings": 14 },
+    "typescript": { "status": "PASS", "errors": 0 },
+    "prettier": { "status": "PASS", "filesFormatted": 39 },
+    "tests": { "status": "PASS", "passed": 84, "failed": 0, "testFiles": 6 },
+    "coverage": {
+      "status": "WARN",
+      "statements": 38.51,
+      "branches": 82.66,
+      "functions": 46.34,
+      "lines": 38.51
+    },
+    "security": { "status": "PASS", "vulnerabilities": 0 },
+    "typeCoverage": { "status": "PASS", "percentage": 98.63, "covered": 3767, "total": 3819 }
+  },
+  "cicd": {
+    "githubCI": true,
+    "codecov": true
+  },
+  "coverageDetails": {
+    "highCoverage": [
+      { "file": "converter.ts", "percentage": 94.4 }
+    ],
+    "lowCoverage": [
+      { "file": "main.ts", "percentage": 0, "reason": "Plugin entry point - requires Obsidian runtime" },
+      { "file": "PostComposer.ts", "percentage": 0, "reason": "UI component - requires Obsidian runtime" },
+      { "file": "auth.ts", "percentage": 12.38, "reason": "OAuth flow - requires browser" },
+      { "file": "logger.ts", "percentage": 34.44, "reason": "Partial test coverage" }
+    ]
+  },
+  "nextSteps": [
+    {
+      "id": 1,
+      "action": "Fix ESLint errors",
+      "command": "@quality-check:eslint-fixer",
+      "completed": true
+    },
+    {
+      "id": 2,
+      "action": "Fix Prettier formatting",
+      "command": "npx prettier --write .",
+      "completed": true
+    },
+    {
+      "id": 3,
+      "action": "Fix security vulnerabilities",
+      "command": "npm audit fix",
+      "completed": true
+    },
+    {
+      "id": 4,
+      "action": "Setup Codecov integration",
+      "command": "@quality-check:codecov-setup",
+      "completed": true
+    }
+  ]
+}
