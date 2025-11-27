@@ -1,6 +1,6 @@
 # Roadmap - Obsidian Substack Publisher
 
-## v1.0.0 ✅ (Current) - MVP
+## v1.0.7 ✅ (Current)
 
 - [x] Automatic Substack login (desktop only)
 - [x] Session cookie capture via Electron BrowserWindow
@@ -16,49 +16,43 @@
 - [x] Publication modal with preview
 - [x] Save as Draft / Publish directly
 - [x] Clear error messages (session expired, publication not found, etc.)
+- [x] CI/CD with GitHub Actions
+- [x] Codecov integration for coverage tracking
+- [x] 47% test coverage (120 tests)
 
 ---
 
-## v1.1.0 - Image Upload (Priority)
+## v1.1.0 - Image Upload
 
-- [ ] Upload local images to Substack CDN
+- [ ] Upload local images to Substack CDN (PNG, JPG)
 - [ ] Support embedded images `![alt](path/to/image.png)`
 - [ ] Auto-convert local paths → Substack URLs
-- [ ] Cover image support
-- [ ] Supported formats: PNG, JPG, GIF, WebP
 
-## v1.2.0 - UX Improvements
+## v1.2.0 - Publication améliorée
 
 - [ ] Audience selector (everyone, paid only, free only, founding)
-- [ ] Confirmation before direct publish
 - [ ] Post link display after publication
-- [ ] Progress bar during upload
-- [ ] Clickable success notification with link
+- [ ] YAML frontmatter support (`title`, `subtitle`, `audience`)
+- [ ] Update existing draft (link note ↔ draft via frontmatter)
 
-## v1.3.0 - Draft Management
+## v1.3.0 - Cover Image & Metadata
 
-- [ ] List existing drafts
-- [ ] Update existing draft (instead of creating new)
-- [ ] Delete drafts
-- [ ] Link note ↔ draft via frontmatter
+- [ ] Cover image support (upload + set as post cover)
+- [ ] Paywall marker in Markdown (`<!-- paywall -->`)
+- [ ] Scheduled publishing (if feasible)
 
-## v1.4.0 - Metadata
+## v1.4.0 - Tags & Sections
 
-- [ ] YAML frontmatter support for metadata
-  - `title`, `subtitle`, `audience`
-  - `tags`, `section`
-  - `scheduled_date` (scheduled publishing)
-- [ ] Auto-extract title from H1 or frontmatter
+- [ ] Tags support via frontmatter
+- [ ] Section support (categorize posts)
 
 ---
 
-## v2.0.0 - Advanced Features
+## v2.0.0 - Simplification
 
-- [ ] WYSIWYG preview (side by side)
+- [ ] Remove preview window (not useful)
 - [ ] Post templates
-- [ ] Publishing statistics (views, likes, comments)
-- [ ] Scheduled newsletters support
-- [ ] Paywall marker in Markdown (`<!-- paywall -->`)
+- [ ] Paywall improvements (if v1.3 paywall works well)
 
 ---
 
@@ -80,4 +74,3 @@
 - Unofficial Substack API (may change without notice)
 - Cookie expires after ~30 days
 - No OAuth support (Substack doesn't offer it)
-- Image upload not yet supported (v1.0)

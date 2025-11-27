@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-11-27
+
+### Added
+
+- **Local image upload** - Images in your notes are now automatically uploaded to Substack CDN
+- Support for PNG, JPG, JPEG, GIF, WebP formats
+- Automatic path resolution (relative paths, parent directories, absolute vault paths)
+- ImageHandler class for processing and uploading images
+- 41 new tests for image upload functionality (161 total)
+
+### Changed
+
+- API now uses base64 data URI format for image uploads
+- Logger interface extracted for better type safety
+- Test coverage improved to 52.7%
+
+### Fixed
+
+- Image upload endpoint corrected to `/api/v1/image`
+
 ## [1.0.7] - 2025-11-27
 
 ### Added
@@ -132,6 +152,7 @@ Built upon open-source projects:
 
 ---
 
+[1.1.0]: https://github.com/roomi-fields/obsidian-substack/releases/tag/v1.1.0
 [1.0.7]: https://github.com/roomi-fields/obsidian-substack/releases/tag/v1.0.7
 [1.0.6]: https://github.com/roomi-fields/obsidian-substack/releases/tag/v1.0.6
 [1.0.5]: https://github.com/roomi-fields/obsidian-substack/releases/tag/v1.0.5

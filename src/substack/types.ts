@@ -150,3 +150,33 @@ export interface SubstackPublishResponse {
   slug: string;
   canonical_url: string;
 }
+
+// Image upload types
+export interface ImageUploadResult {
+  id: string;
+  url: string;
+  contentType: string;
+  bytes: number;
+  imageWidth: number;
+  imageHeight: number;
+}
+
+export interface ImageReference {
+  fullMatch: string;
+  alt: string;
+  path: string;
+  title?: string;
+  isLocal: boolean;
+}
+
+export interface ImageProcessingResult {
+  processedMarkdown: string;
+  uploadedImages: Array<{
+    originalPath: string;
+    cdnUrl: string;
+  }>;
+  errors: Array<{
+    path: string;
+    error: string;
+  }>;
+}

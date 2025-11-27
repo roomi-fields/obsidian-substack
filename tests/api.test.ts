@@ -385,6 +385,127 @@ describe("SubstackAPI", () => {
     });
   });
 
+  describe("uploadImage", () => {
+    beforeEach(() => {
+      api = new SubstackAPI("substack.sid=test123");
+    });
+
+    it("should call image endpoint with base64 data URI", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(
+        mockResponse(200, {
+          id: "img-123",
+          url: "https://substackcdn.com/image.png",
+          contentType: "image/png",
+          bytes: 5000,
+          imageWidth: 800,
+          imageHeight: 600
+        })
+      );
+
+      const imageData = new ArrayBuffer(5000);
+      await api.uploadImage("mypub", imageData, "photo.png", "image/png");
+
+      expect(requestUrl).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: "https://mypub.substack.com/api/v1/image",
+          method: "POST",
+          throw: false
+        })
+      );
+    });
+
+    it("should return success with CDN URL on successful upload", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(
+        mockResponse(200, {
+          id: "img-123",
+          url: "https://substackcdn.com/photo.png",
+          contentType: "image/png",
+          bytes: 5000,
+          imageWidth: 800,
+          imageHeight: 600
+        })
+      );
+
+      const result = await api.uploadImage(
+        "mypub",
+        new ArrayBuffer(5000),
+        "photo.png",
+        "image/png"
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.data?.url).toBe("https://substackcdn.com/photo.png");
+      expect(result.data?.id).toBe("img-123");
+    });
+
+    it("should return error on failed upload", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(
+        mockResponse(500, { error: "Server error" })
+      );
+
+      const result = await api.uploadImage(
+        "mypub",
+        new ArrayBuffer(5000),
+        "photo.png",
+        "image/png"
+      );
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Upload failed");
+      expect(result.error).toContain("500");
+    });
+
+    it("should return error on 401 unauthorized", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(
+        mockResponse(401, { error: "Unauthorized" })
+      );
+
+      const result = await api.uploadImage(
+        "mypub",
+        new ArrayBuffer(5000),
+        "photo.png",
+        "image/png"
+      );
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("401");
+    });
+
+    it("should use form-urlencoded content type", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(mockResponse(200, {}));
+
+      await api.uploadImage(
+        "mypub",
+        new ArrayBuffer(5000),
+        "photo.png",
+        "image/png"
+      );
+
+      const call = vi.mocked(requestUrl).mock.calls[0];
+      const callArg = call?.[0] as { headers?: Record<string, string> };
+
+      expect(callArg.headers?.["Content-Type"]).toBe(
+        "application/x-www-form-urlencoded"
+      );
+    });
+
+    it("should include cookie in request headers", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(mockResponse(200, {}));
+
+      await api.uploadImage(
+        "mypub",
+        new ArrayBuffer(5000),
+        "photo.png",
+        "image/png"
+      );
+
+      const call = vi.mocked(requestUrl).mock.calls[0];
+      const callArg = call?.[0] as { headers?: Record<string, string> };
+
+      expect(callArg.headers?.Cookie).toBe("substack.sid=test123");
+    });
+  });
+
   describe("error handling", () => {
     beforeEach(() => {
       api = new SubstackAPI("substack.sid=test123");

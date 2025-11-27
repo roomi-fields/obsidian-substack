@@ -7,11 +7,31 @@ export enum LogLevel {
   ERROR = 3,
 }
 
+// Interface for logger (real or no-op)
+export interface ILogger {
+  setDevMode(devMode: boolean): void;
+  setApp(app: App): void;
+  debug(message: string, ...args: unknown[]): void;
+  info(message: string, ...args: unknown[]): void;
+  warn(message: string, ...args: unknown[]): void;
+  error(message: string, error?: unknown): void;
+  time(label: string): void;
+  timeEnd(label: string): void;
+  group(title: string): void;
+  groupEnd(): void;
+  table(data: unknown, title?: string): void;
+  logPluginLoad(): void;
+  logPluginUnload(): void;
+  logCommandExecution(commandId: string): void;
+  logSettingsChange(setting: string, oldValue: unknown, newValue: unknown): void;
+  setLogLevel(logLevel: LogLevel): void;
+}
+
 const LOG_FILE = "substack-publisher.log";
 const MAX_LOG_SIZE = 100000; // 100k chars, truncate if larger
 
 // No-op logger that does nothing
-class NoOpLogger {
+class NoOpLogger implements ILogger {
   setDevMode(_devMode: boolean): void {
     /* no-op */
   }
@@ -66,7 +86,7 @@ class NoOpLogger {
   }
 }
 
-export class Logger {
+export class Logger implements ILogger {
   private name: string;
   private devMode: boolean;
   private logLevel: LogLevel;
@@ -269,6 +289,6 @@ export function createLogger(
   name: string,
   devMode: boolean = false,
   logLevel: LogLevel = LogLevel.ERROR
-): Logger | NoOpLogger {
+): ILogger {
   return devMode ? new Logger(name, devMode, logLevel) : new NoOpLogger();
 }

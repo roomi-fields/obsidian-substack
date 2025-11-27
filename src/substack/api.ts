@@ -2,7 +2,8 @@ import { requestUrl, RequestUrlResponse } from "obsidian";
 import {
   SubstackDocument,
   SubstackDraftPayload,
-  SubstackDraftResponse
+  SubstackDraftResponse,
+  ImageUploadResult
 } from "./types";
 
 export class SubstackAPI {
@@ -128,7 +129,60 @@ export class SubstackAPI {
   updateCookie(newCookie: string): void {
     this.cookie = this.normalizeCookie(newCookie);
   }
+
+  /**
+   * Upload an image to Substack CDN
+   * @param publication - The publication subdomain
+   * @param imageData - Binary image data as ArrayBuffer
+   * @param filename - Original filename with extension
+   * @param mimeType - MIME type (image/png, image/jpeg, etc.)
+   * @returns Image upload result with CDN URL
+   */
+  async uploadImage(
+    publication: string,
+    imageData: ArrayBuffer,
+    filename: string,
+    mimeType: string
+  ): Promise<{ success: boolean; data?: ImageUploadResult; error?: string }> {
+    // Convert ArrayBuffer to base64 data URI
+    const uint8Array = new Uint8Array(imageData);
+    let binary = "";
+    for (let i = 0; i < uint8Array.length; i++) {
+      binary += String.fromCharCode(uint8Array[i] as number);
+    }
+    const base64 = globalThis.btoa(binary);
+    const dataUri = `data:${mimeType};base64,${base64}`;
+
+    // Substack expects form-urlencoded with "image" field containing data URI
+    const response = await requestUrl({
+      url: `https://${publication}.substack.com/api/v1/image`,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Cookie: this.cookie
+      },
+      body: `image=${encodeURIComponent(dataUri)}`,
+      throw: false
+    });
+
+    if (response.status >= 200 && response.status < 300) {
+      return {
+        success: true,
+        data: response.json as ImageUploadResult
+      };
+    }
+
+    return {
+      success: false,
+      error: `Upload failed: ${response.status} - ${response.text || "Unknown error"}`
+    };
+  }
 }
 
 // Re-export types for convenience
-export type { SubstackDocument, SubstackDraftPayload, SubstackDraftResponse };
+export type {
+  SubstackDocument,
+  SubstackDraftPayload,
+  SubstackDraftResponse,
+  ImageUploadResult
+};

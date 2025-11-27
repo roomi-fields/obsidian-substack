@@ -20,6 +20,7 @@
 - **📝 Draft & Publish** — Save as draft or publish immediately
 - **📚 Multi-Publication** — Manage multiple Substack publications
 - **🔄 Markdown Conversion** — Full conversion to Substack format
+- **🖼️ Image Upload** — Local images auto-uploaded to Substack CDN
 
 ### Supported Markdown
 
@@ -32,7 +33,7 @@
 | Blockquotes             | ✅      |
 | Horizontal Rules        | ✅      |
 | Images (URLs)           | ✅      |
-| Images (Local)          | 🔜 v1.1 |
+| Images (Local)          | ✅      |
 | Tables                  | ❌      |
 
 ---
@@ -126,9 +127,9 @@ See [ROADMAP.md](./docs/ROADMAP.md) for planned features.
 
 **Coming soon:**
 
-- 🖼️ **v1.1** — Local image upload
-- 🎯 **v1.2** — Audience selector (free/paid)
-- 📑 **v1.3** — Draft management
+- 🎯 **v1.2** — Audience selector (free/paid) + frontmatter
+- 📸 **v1.3** — Cover image + paywall marker
+- 🏷️ **v1.4** — Tags and sections
 
 ---
 

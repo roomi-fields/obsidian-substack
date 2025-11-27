@@ -1,13 +1,15 @@
 import { App, Modal, Notice, Setting } from "obsidian";
 import { SubstackAPI } from "./api";
 import { MarkdownConverter } from "./converter";
-import { createLogger } from "../utils/logger";
+import { ImageHandler } from "./imageHandler";
+import { ILogger } from "../utils/logger";
 
 export class SubstackPostComposer extends Modal {
   private api: SubstackAPI;
   private publications: string[];
-  private logger: ReturnType<typeof createLogger>;
+  private logger: ILogger;
   private converter: MarkdownConverter;
+  private imageHandler: ImageHandler;
   private selectedPublication: string;
   private title: string = "";
   private subtitle: string = "";
@@ -18,13 +20,14 @@ export class SubstackPostComposer extends Modal {
     app: App,
     api: SubstackAPI,
     publications: string[],
-    logger: ReturnType<typeof createLogger>
+    logger: ILogger
   ) {
     super(app);
     this.api = api;
     this.publications = publications;
     this.logger = logger;
     this.converter = new MarkdownConverter();
+    this.imageHandler = new ImageHandler(api, app.vault, logger);
 
     // Ensure we have at least one publication
     const firstPublication = publications[0];
@@ -168,7 +171,34 @@ export class SubstackPostComposer extends Modal {
 
     const content = await this.app.vault.cachedRead(activeFile);
     // Remove frontmatter
-    return content.replace(/^---[\s\S]*?---\n?/, "");
+    const cleanContent = content.replace(/^---[\s\S]*?---\n?/, "");
+
+    // Process images - upload local images to Substack CDN
+    const basePath = activeFile.parent?.path || "";
+    const imageResult = await this.imageHandler.processMarkdownImages(
+      this.selectedPublication,
+      cleanContent,
+      basePath
+    );
+
+    // Notify user of image upload results
+    if (imageResult.uploadedImages.length > 0) {
+      this.logger.info(
+        `Uploaded ${imageResult.uploadedImages.length} image(s) to Substack`
+      );
+    }
+
+    if (imageResult.errors.length > 0) {
+      const errorCount = imageResult.errors.length;
+      new Notice(
+        `Warning: ${errorCount} image(s) failed to upload. Check dev console for details.`
+      );
+      for (const err of imageResult.errors) {
+        this.logger.warn(`Image upload failed: ${err.path} - ${err.error}`);
+      }
+    }
+
+    return imageResult.processedMarkdown;
   }
 
   private async saveDraft() {
