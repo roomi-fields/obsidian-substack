@@ -8,6 +8,7 @@ description: Guide for creating effective skills. This skill should be used when
 ## What is a Skill?
 
 A skill is a markdown file that extends Claude Code's capabilities by providing:
+
 - Specialized knowledge and domain expertise
 - Workflow automation instructions
 - Tool integration guidance
@@ -38,18 +39,23 @@ description: Brief description shown in skill list. This skill should be used wh
 # Skill Title
 
 ## Overview
+
 High-level description of what this skill does.
 
 ## When to Use
+
 Specific scenarios when this skill should be invoked.
 
 ## Instructions
+
 Step-by-step guidance for Claude to follow.
 
 ## Examples
+
 Concrete examples of skill usage.
 
 ## Troubleshooting
+
 Common issues and solutions.
 ```
 
@@ -58,6 +64,7 @@ Common issues and solutions.
 ### 1. Plan the Skill
 
 Before creating, answer:
+
 - What problem does this skill solve?
 - When should Claude use this skill?
 - What knowledge or instructions are needed?
@@ -88,15 +95,18 @@ description: [What this skill does]. This skill should be used when [trigger con
 ## When to Use
 
 This skill should be invoked when:
+
 - [Condition 1]
 - [Condition 2]
 
 ## Workflow
 
 ### Step 1: [First Step]
+
 [Instructions]
 
 ### Step 2: [Second Step]
+
 [Instructions]
 
 ## Best Practices
@@ -107,9 +117,11 @@ This skill should be invoked when:
 ## Common Issues
 
 ### [Issue 1]
+
 **Solution:** [How to fix]
 
 ### [Issue 2]
+
 **Solution:** [How to fix]
 ```
 
@@ -119,7 +131,7 @@ For automation, add scripts in the `scripts/` directory:
 
 ```javascript
 // scripts/helper.cjs
-const fs = require('fs');
+const fs = require("fs");
 // Script logic
 ```
 
@@ -153,16 +165,19 @@ const fs = require('fs');
 ## Examples of Good Skills
 
 ### Release Skill
+
 - Automates npm package releases
 - Provides version sync workflow
 - Includes troubleshooting guide
 
 ### Testing Skill
+
 - Guides test writing
 - Provides test patterns
 - Includes coverage guidelines
 
 ### Documentation Skill
+
 - Maintains doc standards
 - Provides templates
 - Ensures consistency
@@ -170,11 +185,13 @@ const fs = require('fs');
 ## Skill Discovery
 
 Skills are automatically discovered when:
+
 1. Located in `.claude/skills/` directory
 2. Contains valid `SKILL.md` file
 3. Has proper YAML frontmatter
 
 Claude Code lists available skills with:
+
 ```
 /skills
 ```

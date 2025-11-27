@@ -10,12 +10,19 @@
  * Customize the FILES_TO_UPDATE array for your project structure.
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 // Read version from package.json (source of truth)
-const packageJsonPath = path.join(__dirname, '..', '..', '..', '..', 'package.json');
-const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+const packageJsonPath = path.join(
+  __dirname,
+  "..",
+  "..",
+  "..",
+  "..",
+  "package.json",
+);
+const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
 const version = packageJson.version;
 
 console.log(`Updating version references to: ${version}`);
@@ -31,17 +38,17 @@ console.log(`Updating version references to: ${version}`);
  */
 const FILES_TO_UPDATE = [
   {
-    file: 'README.md',
+    file: "README.md",
     patterns: [
       // npm install command with version
       {
         search: /@your-scope\/project-name@[\d.]+/g,
-        replace: '@your-scope/project-name@$VERSION',
+        replace: "@your-scope/project-name@$VERSION",
       },
       // Version badge
       {
         search: /version-[\d.]+-blue/g,
-        replace: 'version-$VERSION-blue',
+        replace: "version-$VERSION-blue",
       },
     ],
   },
@@ -58,7 +65,7 @@ const FILES_TO_UPDATE = [
 ];
 
 // Process each file
-const projectRoot = path.join(__dirname, '..', '..', '..', '..');
+const projectRoot = path.join(__dirname, "..", "..", "..", "..");
 
 for (const config of FILES_TO_UPDATE) {
   const filePath = path.join(projectRoot, config.file);
@@ -68,11 +75,14 @@ for (const config of FILES_TO_UPDATE) {
     continue;
   }
 
-  let content = fs.readFileSync(filePath, 'utf8');
+  let content = fs.readFileSync(filePath, "utf8");
   let updated = false;
 
   for (const pattern of config.patterns) {
-    const newContent = content.replace(pattern.search, pattern.replace.replace('$VERSION', version));
+    const newContent = content.replace(
+      pattern.search,
+      pattern.replace.replace("$VERSION", version),
+    );
 
     if (newContent !== content) {
       content = newContent;
@@ -81,12 +91,14 @@ for (const config of FILES_TO_UPDATE) {
   }
 
   if (updated) {
-    fs.writeFileSync(filePath, content, 'utf8');
+    fs.writeFileSync(filePath, content, "utf8");
     console.log(`Updated: ${config.file}`);
   } else {
     console.log(`No changes: ${config.file}`);
   }
 }
 
-console.log('\nVersion update complete!');
-console.log(`\nDon't forget to update CHANGELOG.md manually with release notes.`);
+console.log("\nVersion update complete!");
+console.log(
+  `\nDon't forget to update CHANGELOG.md manually with release notes.`,
+);

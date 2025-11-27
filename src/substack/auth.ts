@@ -88,7 +88,9 @@ export class SubstackAuth {
    */
   login(): void {
     if (!this.isAvailable()) {
-      new Notice("Auto-login is only available on desktop. Please copy your cookie manually.");
+      new Notice(
+        "Auto-login is only available on desktop. Please copy your cookie manually."
+      );
       return;
     }
 
@@ -99,7 +101,9 @@ export class SubstackAuth {
       const { BrowserWindow } = remote;
 
       if (!BrowserWindow) {
-        new Notice("Cannot access browser window. Please copy your cookie manually.");
+        new Notice(
+          "Cannot access browser window. Please copy your cookie manually."
+        );
         return;
       }
 
@@ -134,21 +138,28 @@ export class SubstackAuth {
 
         try {
           // Get ALL substack cookies from this window's session
-          const allCookies: ElectronCookie[] = await authWindow.webContents.session.cookies.get({
-            domain: ".substack.com"
-          });
+          const allCookies: ElectronCookie[] =
+            await authWindow.webContents.session.cookies.get({
+              domain: ".substack.com"
+            });
 
           // Find the sid cookie
-          const sidCookie = allCookies.find((c: ElectronCookie) => c.name === "substack.sid");
+          const sidCookie = allCookies.find(
+            (c: ElectronCookie) => c.name === "substack.sid"
+          );
 
           if (sidCookie && sidCookie.value) {
             // Build cookie string with all relevant cookies
             const relevantCookies = allCookies
-              .filter((c: ElectronCookie) => c.name.startsWith("substack") || c.name === "connect.sid")
+              .filter(
+                (c: ElectronCookie) =>
+                  c.name.startsWith("substack") || c.name === "connect.sid"
+              )
               .map((c: ElectronCookie) => `${c.name}=${c.value}`)
               .join("; ");
 
-            const cookieValue = relevantCookies || `substack.sid=${sidCookie.value}`;
+            const cookieValue =
+              relevantCookies || `substack.sid=${sidCookie.value}`;
 
             // Check cookie format before capturing
             const hasValidFormat = this.hasValidCookieFormat(cookieValue);
@@ -187,13 +198,19 @@ export class SubstackAuth {
         }
       };
 
-      authWindow.webContents.on("did-navigate", (_event: unknown, url: string) => {
-        checkIfAuthenticated(url);
-      });
+      authWindow.webContents.on(
+        "did-navigate",
+        (_event: unknown, url: string) => {
+          checkIfAuthenticated(url);
+        }
+      );
 
-      authWindow.webContents.on("did-navigate-in-page", (_event: unknown, url: string) => {
-        checkIfAuthenticated(url);
-      });
+      authWindow.webContents.on(
+        "did-navigate-in-page",
+        (_event: unknown, url: string) => {
+          checkIfAuthenticated(url);
+        }
+      );
 
       // Also check periodically as fallback
       const intervalId = setInterval(() => {
@@ -202,7 +219,10 @@ export class SubstackAuth {
           return;
         }
         const currentUrl = authWindow.webContents.getURL();
-        if (!currentUrl.includes("sign-in") && !currentUrl.includes("magic-link")) {
+        if (
+          !currentUrl.includes("sign-in") &&
+          !currentUrl.includes("magic-link")
+        ) {
           void checkCookie();
         }
       }, 3000);
@@ -211,16 +231,19 @@ export class SubstackAuth {
       authWindow.on("closed", () => {
         clearInterval(intervalId);
         if (!cookieCaptured) {
-          new Notice("Login window closed. Cookie was not captured - please try again.");
+          new Notice(
+            "Login window closed. Cookie was not captured - please try again."
+          );
         }
       });
 
       // Load Substack login page
       authWindow.loadURL("https://substack.com/sign-in");
-
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
-      new Notice(`Failed to open login window: ${message}. Please copy your cookie manually.`);
+      new Notice(
+        `Failed to open login window: ${message}. Please copy your cookie manually.`
+      );
     }
   }
 }

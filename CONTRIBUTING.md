@@ -54,14 +54,14 @@ npm test
 
 ### Development Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development mode with watch |
-| `npm run build` | Build for production |
-| `npm test` | Run test suite |
-| `npm run lint` | Check code style |
-| `npm run lint:fix` | Fix code style issues |
-| `npm run format` | Format code with Prettier |
+| Command            | Description                       |
+| ------------------ | --------------------------------- |
+| `npm run dev`      | Start development mode with watch |
+| `npm run build`    | Build for production              |
+| `npm test`         | Run test suite                    |
+| `npm run lint`     | Check code style                  |
+| `npm run lint:fix` | Fix code style issues             |
+| `npm run format`   | Format code with Prettier         |
 
 ## Making Changes
 
@@ -100,16 +100,16 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/) specifica
 
 ### Types
 
-| Type | Description |
-|------|-------------|
-| `feat` | New feature |
-| `fix` | Bug fix |
-| `docs` | Documentation |
-| `style` | Code style (formatting, semicolons, etc.) |
-| `refactor` | Code refactoring |
-| `perf` | Performance improvement |
-| `test` | Adding or modifying tests |
-| `chore` | Maintenance tasks |
+| Type       | Description                               |
+| ---------- | ----------------------------------------- |
+| `feat`     | New feature                               |
+| `fix`      | Bug fix                                   |
+| `docs`     | Documentation                             |
+| `style`    | Code style (formatting, semicolons, etc.) |
+| `refactor` | Code refactoring                          |
+| `perf`     | Performance improvement                   |
+| `test`     | Adding or modifying tests                 |
+| `chore`    | Maintenance tasks                         |
 
 ### Examples
 
@@ -132,12 +132,14 @@ BREAKING CHANGE: response.data is now response.result"
 ## Pull Request Process
 
 1. **Update your branch** with the latest main:
+
    ```bash
    git fetch upstream
    git rebase upstream/main
    ```
 
 2. **Push your changes**:
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -178,14 +180,14 @@ BREAKING CHANGE: response.data is now response.result"
 
 ### Naming Conventions
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Files | kebab-case | `user-service.ts` |
-| Classes | PascalCase | `UserService` |
-| Functions | camelCase | `getUserById` |
-| Constants | UPPER_SNAKE | `MAX_RETRIES` |
-| Interfaces | PascalCase | `UserConfig` |
-| Types | PascalCase | `UserId` |
+| Type       | Convention  | Example           |
+| ---------- | ----------- | ----------------- |
+| Files      | kebab-case  | `user-service.ts` |
+| Classes    | PascalCase  | `UserService`     |
+| Functions  | camelCase   | `getUserById`     |
+| Constants  | UPPER_SNAKE | `MAX_RETRIES`     |
+| Interfaces | PascalCase  | `UserConfig`      |
+| Types      | PascalCase  | `UserId`          |
 
 ## Testing
 

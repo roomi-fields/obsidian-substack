@@ -47,7 +47,8 @@ describe("SubstackAuth", () => {
     });
 
     it("should return true for cookie with multiple values including substack.sid", () => {
-      const multiCookie = "substack.sid=abc123456789012345678901234567890; other=value";
+      const multiCookie =
+        "substack.sid=abc123456789012345678901234567890; other=value";
       expect(testValidation(multiCookie)).toBe(true);
     });
 

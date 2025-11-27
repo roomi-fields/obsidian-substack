@@ -12,6 +12,7 @@ This project is built upon the work of others. We are grateful for their contrib
 - **Usage**: Obsidian plugin structure, UI patterns, settings management
 
 **Files derived from this project:**
+
 - `main.ts` - Plugin entry point structure
 - `src/utils/logger.ts` - Logging utility
 - `src/substack/PostComposer.ts` - Modal UI pattern (adapted from `src/linkedin/PostComposer.ts`)
@@ -26,6 +27,7 @@ This project is built upon the work of others. We are grateful for their contrib
 - **Usage**: Substack API integration logic, authentication patterns, content conversion
 
 **Concepts adapted from this project:**
+
 - `src/substack/api.ts` - API client logic (adapted from Python handlers)
 - `src/substack/converter.ts` - Markdown to Substack JSON conversion
 - `src/substack/auth.ts` - Cookie-based authentication pattern
@@ -54,12 +56,14 @@ Each adapted file contains attribution headers in the following format:
 ## License Compliance
 
 All source projects are licensed under the MIT License, which permits:
+
 - Commercial use
 - Modification
 - Distribution
 - Private use
 
 As required by MIT License, we:
+
 - Include the original copyright notices
 - Include the license text
 - Provide clear attribution to original authors
@@ -67,6 +71,7 @@ As required by MIT License, we:
 ## Thank You
 
 Special thanks to:
+
 - **eharris128** for creating an excellent Obsidian plugin template
 - **ty13r** for reverse-engineering and documenting the Substack API
 - **ma2za** for the foundational python-substack library

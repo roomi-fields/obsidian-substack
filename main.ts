@@ -97,7 +97,9 @@ export default class SubstackPublisherPlugin extends Plugin {
     this.logger.logCommandExecution("publish-to-substack");
 
     if (!this.settings.substackCookie) {
-      new Notice("Please configure your substack authentication in settings first.");
+      new Notice(
+        "Please configure your substack authentication in settings first."
+      );
       return;
     }
 
@@ -141,10 +143,14 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
 
       new Setting(containerEl)
         .setName("Login")
-        .setDesc(`${authStatus}. Click to open Substack login window and automatically capture your session`)
+        .setDesc(
+          `${authStatus}. Click to open Substack login window and automatically capture your session`
+        )
         .addButton((button) => {
           button
-            .setButtonText(this.plugin.settings.substackCookie ? "Re-login" : "Login")
+            .setButtonText(
+              this.plugin.settings.substackCookie ? "Re-login" : "Login"
+            )
             .setCta()
             .onClick(() => {
               const auth = new SubstackAuth((cookie) => {
@@ -217,7 +223,8 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
 
             const status = value ? "enabled" : "disabled";
-            const message = status === "enabled" ? "Check console for detailed logs." : "";
+            const message =
+              status === "enabled" ? "Check console for detailed logs." : "";
             new Notice(`Dev mode ${status}. ${message}`);
 
             this.display();

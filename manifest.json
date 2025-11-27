@@ -1,11 +1,11 @@
 {
-	"id": "substack-publisher",
-	"name": "Substack Publisher",
-	"version": "1.0.6",
-	"minAppVersion": "1.0.0",
-	"description": "Publish your notes directly to Substack as drafts or published posts.",
-	"author": "Romain Peyrichou",
-	"authorUrl": "https://github.com/roomi-fields",
-	"fundingUrl": "",
-	"isDesktopOnly": true
+  "id": "substack-publisher",
+  "name": "Substack Publisher",
+  "version": "1.0.7",
+  "minAppVersion": "1.0.0",
+  "description": "Publish your notes directly to Substack as drafts or published posts.",
+  "author": "Romain Peyrichou",
+  "authorUrl": "https://github.com/roomi-fields",
+  "fundingUrl": "",
+  "isDesktopOnly": true
 }

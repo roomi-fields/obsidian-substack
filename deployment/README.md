@@ -63,11 +63,11 @@ curl http://localhost:3000/health
 
 ## Documentation Index
 
-| Document | Description |
-|----------|-------------|
-| [Installation](docs/01-INSTALL.md) | Complete installation guide |
-| [Configuration](docs/02-CONFIGURATION.md) | Configuration options |
-| [API Reference](docs/03-API.md) | API endpoints and usage |
+| Document                                      | Description                 |
+| --------------------------------------------- | --------------------------- |
+| [Installation](docs/01-INSTALL.md)            | Complete installation guide |
+| [Configuration](docs/02-CONFIGURATION.md)     | Configuration options       |
+| [API Reference](docs/03-API.md)               | API endpoints and usage     |
 | [Troubleshooting](docs/04-TROUBLESHOOTING.md) | Common issues and solutions |
 
 ## Deployment Options

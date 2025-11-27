@@ -14,6 +14,7 @@ This skill automates the complete release workflow for this Obsidian plugin, ens
 ## Project Structure
 
 Files that need version updates:
+
 - `package.json` - Source of truth for version (ALWAYS update first)
 - `manifest.json` - Obsidian plugin manifest (MUST match package.json)
 - `versions.json` - Obsidian version compatibility mapping
@@ -22,6 +23,7 @@ Files that need version updates:
 ## Pre-Release Checklist
 
 Before starting a release:
+
 1. Ensure all tests pass: `npm test`
 2. Ensure build succeeds: `npm run build`
 3. Ensure working directory is clean: `git status`
@@ -32,6 +34,7 @@ Before starting a release:
 ### 1. Determine Version Bump
 
 Follow semantic versioning (SemVer):
+
 - **MAJOR** (x.0.0): Breaking changes, incompatible API changes
 - **MINOR** (0.x.0): New features, backward compatible
 - **PATCH** (0.0.x): Bug fixes, backward compatible
@@ -39,6 +42,7 @@ Follow semantic versioning (SemVer):
 ### 2. Update Versions
 
 Update version in ALL these files:
+
 - `package.json`
 - `manifest.json`
 - `versions.json` (add new entry if minAppVersion changes)
@@ -51,12 +55,15 @@ Add a new section at the top:
 ## [X.Y.Z] - YYYY-MM-DD
 
 ### Added
+
 - New features
 
 ### Changed
+
 - Changes in existing functionality
 
 ### Fixed
+
 - Bug fixes
 ```
 
@@ -95,6 +102,7 @@ gh release create vX.Y.Z \
 ```
 
 The release MUST include these files as assets:
+
 - `main.js` - Compiled plugin code
 - `manifest.json` - Plugin manifest
 - `styles.css` - Plugin styles
@@ -108,7 +116,9 @@ powershell -ExecutionPolicy Bypass -File "deployment/scripts/deploy.ps1"
 ## Troubleshooting
 
 ### Release already exists
+
 If creating a release fails because it already exists:
+
 ```bash
 # Delete existing release
 gh release delete vX.Y.Z --repo roomi-fields/obsidian-substack --yes
@@ -124,13 +134,16 @@ gh release create vX.Y.Z ...
 ```
 
 ### Tag already exists
+
 ```bash
 git tag -d vX.Y.Z
 git push origin :refs/tags/vX.Y.Z
 ```
 
 ### Version mismatch
+
 Always update ALL version files:
+
 - package.json
 - manifest.json
 - versions.json
@@ -138,6 +151,7 @@ Always update ALL version files:
 ## Why Manual Releases?
 
 The GitHub Actions release workflow (`.github/workflows/release.yml`) is **disabled** because:
+
 1. We create releases manually with specific release notes
 2. Automated releases would conflict with manually created ones
 3. Manual control allows better release note customization

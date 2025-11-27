@@ -116,7 +116,10 @@ class BlockBuilder {
     return { type: "horizontal_rule" };
   }
 
-  text(textContent: string, marks?: Array<"strong" | "em" | "code">): TextContent {
+  text(
+    textContent: string,
+    marks?: Array<"strong" | "em" | "code">
+  ): TextContent {
     const textObj: TextContent = { type: "text", text: textContent };
     if (marks && marks.length > 0) {
       textObj.marks = marks.map((mark) => ({ type: mark }));
@@ -258,7 +261,10 @@ export class MarkdownConverter {
       const currentLine = lines[i];
       if (currentLine !== undefined && currentLine.trim() === "```") {
         const code = codeLines.join("\n");
-        return { block: this.builder.codeBlock(code, language), nextIndex: i + 1 };
+        return {
+          block: this.builder.codeBlock(code, language),
+          nextIndex: i + 1
+        };
       }
       codeLines.push(currentLine ?? "");
       i++;
@@ -319,7 +325,10 @@ export class MarkdownConverter {
       if (!trimmedLine) {
         // Empty line might end the list
         const nextLine = lines[i + 1];
-        if (nextLine === undefined || !/^(\*|-|\+|\d+\.)\s/.test(nextLine.trim())) {
+        if (
+          nextLine === undefined ||
+          !/^(\*|-|\+|\d+\.)\s/.test(nextLine.trim())
+        ) {
           break;
         }
         i++;
@@ -392,12 +401,17 @@ export class MarkdownConverter {
     if (paragraphLines.length > 0) {
       // Check for images first (single line only)
       if (paragraphLines.length === 1 && paragraphLines[0]) {
-        const imgMatch = paragraphLines[0].trim().match(/^!\[([^\]]*)\]\(([^\s)]+)(?:\s+"([^"]+)")?\)$/);
+        const imgMatch = paragraphLines[0]
+          .trim()
+          .match(/^!\[([^\]]*)\]\(([^\s)]+)(?:\s+"([^"]+)")?\)$/);
         if (imgMatch) {
           const altText = imgMatch[1] ?? "";
           const src = imgMatch[2] ?? "";
           const caption = imgMatch[3] ?? "";
-          return { block: this.builder.image(src, altText, caption), nextIndex: i };
+          return {
+            block: this.builder.image(src, altText, caption),
+            nextIndex: i
+          };
         }
       }
 
@@ -458,34 +472,46 @@ export class MarkdownConverter {
         // Add text before the match
         if (nextMatch.index > 0) {
           const plainText = remaining.slice(0, nextMatch.index);
-          elements.push(this.restoreEscapedChars({ type: "text", text: plainText }));
+          elements.push(
+            this.restoreEscapedChars({ type: "text", text: plainText })
+          );
         }
 
         // Add the formatted element
         switch (nextType) {
         case "bold_italic":
           elements.push(
-            this.restoreEscapedChars(this.builder.text(nextMatch[1] ?? "", ["strong", "em"]))
+            this.restoreEscapedChars(
+              this.builder.text(nextMatch[1] ?? "", ["strong", "em"])
+            )
           );
           break;
         case "bold":
           elements.push(
-            this.restoreEscapedChars(this.builder.text(nextMatch[1] ?? "", ["strong"]))
+            this.restoreEscapedChars(
+              this.builder.text(nextMatch[1] ?? "", ["strong"])
+            )
           );
           break;
         case "italic":
           elements.push(
-            this.restoreEscapedChars(this.builder.text(nextMatch[1] ?? "", ["em"]))
+            this.restoreEscapedChars(
+              this.builder.text(nextMatch[1] ?? "", ["em"])
+            )
           );
           break;
         case "link":
           elements.push(
-            this.restoreEscapedChars(this.builder.link(nextMatch[1] ?? "", nextMatch[2] ?? ""))
+            this.restoreEscapedChars(
+              this.builder.link(nextMatch[1] ?? "", nextMatch[2] ?? "")
+            )
           );
           break;
         case "code":
           elements.push(
-            this.restoreEscapedChars(this.builder.text(nextMatch[1] ?? "", ["code"]))
+            this.restoreEscapedChars(
+              this.builder.text(nextMatch[1] ?? "", ["code"])
+            )
           );
           break;
         }
@@ -493,7 +519,9 @@ export class MarkdownConverter {
         remaining = remaining.slice(nextMatch.index + nextMatch[0].length);
       } else {
         // No more formatting, add the rest as plain text
-        elements.push(this.restoreEscapedChars({ type: "text", text: remaining }));
+        elements.push(
+          this.restoreEscapedChars({ type: "text", text: remaining })
+        );
         break;
       }
     }

@@ -4,10 +4,9 @@
 
 **Publish your Obsidian notes directly to Substack**
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
-[![Obsidian](https://img.shields.io/badge/Obsidian-1.0+-purple.svg)](https://obsidian.md/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub](https://img.shields.io/github/stars/roomi-fields/obsidian-substack?style=social)](https://github.com/roomi-fields/obsidian-substack)
+<!-- Badges -->
+[![CI](https://github.com/roomi-fields/obsidian-substack/actions/workflows/ci.yml/badge.svg)](https://github.com/roomi-fields/obsidian-substack/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/roomi-fields/obsidian-substack/branch/master/graph/badge.svg)](https://codecov.io/gh/roomi-fields/obsidian-substack) [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/) [![Obsidian](https://img.shields.io/badge/Obsidian-1.0+-purple.svg)](https://obsidian.md/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Node.js](https://img.shields.io/badge/Node.js->=18-green.svg)](https://nodejs.org/)
+<!-- End Badges -->
 
 [Installation](#installation) • [Setup](#setup) • [Usage](#usage) • [Roadmap](./docs/ROADMAP.md)
 
@@ -24,17 +23,17 @@
 
 ### Supported Markdown
 
-| Element | Status |
-|---------|--------|
-| Headers (H1-H6) | ✅ |
-| Bold, Italic, Links | ✅ |
-| Ordered/Unordered Lists | ✅ |
-| Code Blocks | ✅ |
-| Blockquotes | ✅ |
-| Horizontal Rules | ✅ |
-| Images (URLs) | ✅ |
-| Images (Local) | 🔜 v1.1 |
-| Tables | ❌ |
+| Element                 | Status  |
+| ----------------------- | ------- |
+| Headers (H1-H6)         | ✅      |
+| Bold, Italic, Links     | ✅      |
+| Ordered/Unordered Lists | ✅      |
+| Code Blocks             | ✅      |
+| Blockquotes             | ✅      |
+| Horizontal Rules        | ✅      |
+| Images (URLs)           | ✅      |
+| Images (Local)          | 🔜 v1.1 |
+| Tables                  | ❌      |
 
 ---
 
@@ -113,11 +112,11 @@ Your Note → Plugin converts → Substack Draft/Post
 
 ## 🐛 Troubleshooting
 
-| Error | Solution |
-|-------|----------|
-| "Session expired" | Re-login via Settings → Login |
-| "Publication not found" | Check subdomain spelling |
-| Plugin not loading | Enable in Community plugins, restart Obsidian |
+| Error                   | Solution                                      |
+| ----------------------- | --------------------------------------------- |
+| "Session expired"       | Re-login via Settings → Login                 |
+| "Publication not found" | Check subdomain spelling                      |
+| Plugin not loading      | Enable in Community plugins, restart Obsidian |
 
 ---
 
@@ -126,6 +125,7 @@ Your Note → Plugin converts → Substack Draft/Post
 See [ROADMAP.md](./docs/ROADMAP.md) for planned features.
 
 **Coming soon:**
+
 - 🖼️ **v1.1** — Local image upload
 - 🎯 **v1.2** — Audience selector (free/paid)
 - 📑 **v1.3** — Draft management

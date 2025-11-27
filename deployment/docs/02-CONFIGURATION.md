@@ -6,16 +6,16 @@ All configuration is done through environment variables. Create a `.env` file in
 
 ### Required Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
+| Variable   | Description      | Example      |
+| ---------- | ---------------- | ------------ |
 | `NODE_ENV` | Environment mode | `production` |
 
 ### Optional Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Server port | `3000` |
-| `LOG_LEVEL` | Logging verbosity | `info` |
+| Variable    | Description       | Default |
+| ----------- | ----------------- | ------- |
+| `PORT`      | Server port       | `3000`  |
+| `LOG_LEVEL` | Logging verbosity | `info`  |
 
 ## Configuration File
 
@@ -64,11 +64,11 @@ PORT=3001
 
 ### Logging Levels
 
-| Level | Description | When to Use |
-|-------|-------------|-------------|
-| `debug` | Detailed debug info | Development |
-| `info` | General information | Default |
-| `warn` | Warning messages | Production |
+| Level   | Description         | When to Use     |
+| ------- | ------------------- | --------------- |
+| `debug` | Detailed debug info | Development     |
+| `info`  | General information | Default         |
+| `warn`  | Warning messages    | Production      |
 | `error` | Error messages only | Minimal logging |
 
 ### PM2 Configuration
@@ -77,17 +77,19 @@ The `ecosystem.config.cjs` file configures PM2 daemon mode:
 
 ```javascript
 module.exports = {
-  apps: [{
-    name: 'project-name',
-    script: 'dist/index.js',
-    instances: 1,
-    autorestart: true,
-    max_memory_restart: '1G',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 3000
-    }
-  }]
+  apps: [
+    {
+      name: "project-name",
+      script: "dist/index.js",
+      instances: 1,
+      autorestart: true,
+      max_memory_restart: "1G",
+      env: {
+        NODE_ENV: "production",
+        PORT: 3000,
+      },
+    },
+  ],
 };
 ```
 

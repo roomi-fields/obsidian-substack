@@ -22,7 +22,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "obsidian": new URL("./tests/setup/obsidian-mock.ts", import.meta.url).pathname
+      obsidian: new URL("./tests/setup/obsidian-mock.ts", import.meta.url)
+        .pathname
     }
   }
 });

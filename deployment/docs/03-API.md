@@ -17,11 +17,13 @@ All endpoints return JSON responses.
 Check if the server is running.
 
 **Request:**
+
 ```http
 GET /health
 ```
 
 **Response:**
+
 ```json
 {
   "status": "ok",
@@ -31,6 +33,7 @@ GET /health
 ```
 
 **cURL Example:**
+
 ```bash
 curl http://localhost:3000/health
 ```
@@ -42,6 +45,7 @@ curl http://localhost:3000/health
 #### List Resources
 
 **Request:**
+
 ```http
 GET /api/resources
 ```
@@ -53,6 +57,7 @@ GET /api/resources
 | `offset` | number | Items to skip | 0 |
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -68,6 +73,7 @@ GET /api/resources
 ```
 
 **cURL Example:**
+
 ```bash
 curl "http://localhost:3000/api/resources?limit=10&offset=0"
 ```
@@ -77,6 +83,7 @@ curl "http://localhost:3000/api/resources?limit=10&offset=0"
 #### Get Resource by ID
 
 **Request:**
+
 ```http
 GET /api/resources/:id
 ```
@@ -87,6 +94,7 @@ GET /api/resources/:id
 | `id` | string | Resource ID |
 
 **Response:**
+
 ```json
 {
   "id": "1",
@@ -96,6 +104,7 @@ GET /api/resources/:id
 ```
 
 **cURL Example:**
+
 ```bash
 curl http://localhost:3000/api/resources/1
 ```
@@ -105,12 +114,14 @@ curl http://localhost:3000/api/resources/1
 #### Create Resource
 
 **Request:**
+
 ```http
 POST /api/resources
 Content-Type: application/json
 ```
 
 **Body:**
+
 ```json
 {
   "name": "New Resource"
@@ -118,6 +129,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "id": "2",
@@ -127,6 +139,7 @@ Content-Type: application/json
 ```
 
 **cURL Example:**
+
 ```bash
 curl -X POST http://localhost:3000/api/resources \
   -H "Content-Type: application/json" \
@@ -138,12 +151,14 @@ curl -X POST http://localhost:3000/api/resources \
 #### Update Resource
 
 **Request:**
+
 ```http
 PUT /api/resources/:id
 Content-Type: application/json
 ```
 
 **Body:**
+
 ```json
 {
   "name": "Updated Resource"
@@ -151,6 +166,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "id": "1",
@@ -160,6 +176,7 @@ Content-Type: application/json
 ```
 
 **cURL Example:**
+
 ```bash
 curl -X PUT http://localhost:3000/api/resources/1 \
   -H "Content-Type: application/json" \
@@ -171,11 +188,13 @@ curl -X PUT http://localhost:3000/api/resources/1 \
 #### Delete Resource
 
 **Request:**
+
 ```http
 DELETE /api/resources/:id
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -184,6 +203,7 @@ DELETE /api/resources/:id
 ```
 
 **cURL Example:**
+
 ```bash
 curl -X DELETE http://localhost:3000/api/resources/1
 ```
@@ -205,19 +225,20 @@ All errors follow this format:
 
 ### Error Codes
 
-| Code | HTTP Status | Description |
-|------|-------------|-------------|
-| `VALIDATION_ERROR` | 400 | Invalid request data |
-| `AUTHENTICATION_ERROR` | 401 | Not authenticated |
-| `AUTHORIZATION_ERROR` | 403 | Not authorized |
-| `NOT_FOUND` | 404 | Resource not found |
-| `CONFLICT_ERROR` | 409 | Resource conflict |
-| `RATE_LIMIT_ERROR` | 429 | Too many requests |
-| `INTERNAL_ERROR` | 500 | Server error |
+| Code                   | HTTP Status | Description          |
+| ---------------------- | ----------- | -------------------- |
+| `VALIDATION_ERROR`     | 400         | Invalid request data |
+| `AUTHENTICATION_ERROR` | 401         | Not authenticated    |
+| `AUTHORIZATION_ERROR`  | 403         | Not authorized       |
+| `NOT_FOUND`            | 404         | Resource not found   |
+| `CONFLICT_ERROR`       | 409         | Resource conflict    |
+| `RATE_LIMIT_ERROR`     | 429         | Too many requests    |
+| `INTERNAL_ERROR`       | 500         | Server error         |
 
 ### Error Examples
 
 **Validation Error:**
+
 ```json
 {
   "error": {
@@ -228,6 +249,7 @@ All errors follow this format:
 ```
 
 **Not Found:**
+
 ```json
 {
   "error": {
@@ -250,6 +272,7 @@ GET /api/resources?limit=10&offset=20
 ```
 
 Response includes pagination info:
+
 ```json
 {
   "data": [...],

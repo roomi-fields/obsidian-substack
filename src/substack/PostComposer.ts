@@ -40,9 +40,13 @@ export class SubstackPostComposer extends Modal {
     new Setting(contentEl).setName("Publish to substack").setHeading();
 
     // Publication selector
-    const pubContainer = contentEl.createDiv({ cls: "substack-field-container" });
+    const pubContainer = contentEl.createDiv({
+      cls: "substack-field-container"
+    });
     pubContainer.createEl("label", { text: "Publication" });
-    const pubSelect = pubContainer.createEl("select", { cls: "substack-select" });
+    const pubSelect = pubContainer.createEl("select", {
+      cls: "substack-select"
+    });
 
     for (const pub of this.publications) {
       const option = pubSelect.createEl("option", { text: pub, value: pub });
@@ -56,7 +60,9 @@ export class SubstackPostComposer extends Modal {
     });
 
     // Title input
-    const titleContainer = contentEl.createDiv({ cls: "substack-field-container" });
+    const titleContainer = contentEl.createDiv({
+      cls: "substack-field-container"
+    });
     titleContainer.createEl("label", { text: "Title" });
     const titleInput = titleContainer.createEl("input", {
       type: "text",
@@ -76,7 +82,9 @@ export class SubstackPostComposer extends Modal {
     });
 
     // Subtitle input
-    const subtitleContainer = contentEl.createDiv({ cls: "substack-field-container" });
+    const subtitleContainer = contentEl.createDiv({
+      cls: "substack-field-container"
+    });
     subtitleContainer.createEl("label", { text: "Subtitle" });
     const subtitleInput = subtitleContainer.createEl("input", {
       type: "text",
@@ -89,31 +97,44 @@ export class SubstackPostComposer extends Modal {
     });
 
     // Content preview
-    const previewContainer = contentEl.createDiv({ cls: "substack-preview-container" });
+    const previewContainer = contentEl.createDiv({
+      cls: "substack-preview-container"
+    });
     previewContainer.createEl("label", { text: "Preview" });
-    const preview = previewContainer.createEl("div", { cls: "substack-preview" });
+    const preview = previewContainer.createEl("div", {
+      cls: "substack-preview"
+    });
 
     if (activeFile) {
-      this.app.vault.cachedRead(activeFile).then((content) => {
-        // Remove frontmatter for preview
-        const cleanContent = content.replace(/^---[\s\S]*?---\n?/, "");
-        preview.textContent = cleanContent.slice(0, 500) + (cleanContent.length > 500 ? "..." : "");
-      }).catch(() => {
-        preview.textContent = "Failed to load preview";
-      });
+      this.app.vault
+        .cachedRead(activeFile)
+        .then((content) => {
+          // Remove frontmatter for preview
+          const cleanContent = content.replace(/^---[\s\S]*?---\n?/, "");
+          preview.textContent =
+            cleanContent.slice(0, 500) +
+            (cleanContent.length > 500 ? "..." : "");
+        })
+        .catch(() => {
+          preview.textContent = "Failed to load preview";
+        });
     } else {
       preview.textContent = "No active file selected";
     }
 
     // Buttons
-    const buttonContainer = contentEl.createDiv({ cls: "substack-button-container" });
-
-    buttonContainer.createEl("button", {
-      text: "Cancel",
-      cls: "substack-cancel-button"
-    }).addEventListener("click", () => {
-      this.close();
+    const buttonContainer = contentEl.createDiv({
+      cls: "substack-button-container"
     });
+
+    buttonContainer
+      .createEl("button", {
+        text: "Cancel",
+        cls: "substack-cancel-button"
+      })
+      .addEventListener("click", () => {
+        this.close();
+      });
 
     this.draftButton = buttonContainer.createEl("button", {
       text: "Save as draft",
@@ -186,7 +207,8 @@ export class SubstackPostComposer extends Modal {
       }
     } catch (error) {
       this.logger.error("Failed to create draft", error);
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       new Notice(`Failed to save draft: ${errorMessage}`);
       this.setButtonsDisabled(false);
     }
@@ -240,17 +262,23 @@ export class SubstackPostComposer extends Modal {
         new Notice("Published successfully");
         this.close();
       } else {
-        throw new Error(this.getErrorMessage(publishResponse.status, "publish"));
+        throw new Error(
+          this.getErrorMessage(publishResponse.status, "publish")
+        );
       }
     } catch (error) {
       this.logger.error("Failed to publish", error);
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       new Notice(`Failed to publish: ${errorMessage}`);
       this.setButtonsDisabled(false);
     }
   }
 
-  private getErrorMessage(status: number, action: string = "create draft"): string {
+  private getErrorMessage(
+    status: number,
+    action: string = "create draft"
+  ): string {
     switch (status) {
     case 401:
     case 403:

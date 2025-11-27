@@ -5,9 +5,11 @@
 ### Application Won't Start
 
 #### Symptom
+
 Application fails to start with configuration errors.
 
 #### Solution
+
 1. Verify `.env` file exists
 2. Check all required variables are set
 3. Validate variable types
@@ -25,12 +27,15 @@ node --version
 ### Port Already in Use
 
 #### Symptom
+
 ```
 Error: listen EADDRINUSE: address already in use :::3000
 ```
 
 #### Solution
+
 1. Find the process using the port:
+
    ```bash
    # Linux/macOS
    lsof -i :3000
@@ -50,10 +55,13 @@ Error: listen EADDRINUSE: address already in use :::3000
 ### Build Errors
 
 #### Symptom
+
 TypeScript compilation fails.
 
 #### Solution
+
 1. Clear build artifacts:
+
    ```bash
    rm -rf dist node_modules
    npm install
@@ -70,10 +78,13 @@ TypeScript compilation fails.
 ### PM2 Issues
 
 #### Symptom
+
 PM2 daemon not starting or crashing.
 
 #### Solution
+
 1. Check PM2 logs:
+
    ```bash
    npm run daemon:logs
    # or
@@ -81,11 +92,13 @@ PM2 daemon not starting or crashing.
    ```
 
 2. Check status:
+
    ```bash
    pm2 status
    ```
 
 3. Restart PM2:
+
    ```bash
    pm2 delete all
    npm run daemon:start
@@ -101,12 +114,15 @@ PM2 daemon not starting or crashing.
 ### Connection Refused
 
 #### Symptom
+
 ```
 Error: connect ECONNREFUSED 127.0.0.1:3000
 ```
 
 #### Solution
+
 1. Verify the application is running:
+
    ```bash
    pm2 status
    # or
@@ -114,6 +130,7 @@ Error: connect ECONNREFUSED 127.0.0.1:3000
    ```
 
 2. Check the port configuration:
+
    ```bash
    echo $PORT
    ```
@@ -128,17 +145,20 @@ Error: connect ECONNREFUSED 127.0.0.1:3000
 ### Out of Memory
 
 #### Symptom
+
 Application crashes with memory errors.
 
 #### Solution
+
 1. Increase Node memory limit:
+
    ```bash
    NODE_OPTIONS="--max-old-space-size=4096" npm start
    ```
 
 2. Update PM2 memory limit in `ecosystem.config.cjs`:
    ```javascript
-   max_memory_restart: '2G'
+   max_memory_restart: "2G";
    ```
 
 ---
@@ -146,17 +166,21 @@ Application crashes with memory errors.
 ### Permission Errors
 
 #### Symptom
+
 ```
 Error: EACCES: permission denied
 ```
 
 #### Solution
+
 1. Check file permissions:
+
    ```bash
    ls -la
    ```
 
 2. Fix ownership:
+
    ```bash
    sudo chown -R $USER:$USER .
    ```
@@ -202,6 +226,7 @@ curl -v -H "Content-Type: application/json" http://localhost:3000/api/endpoint
 ### Slow Response Times
 
 1. Check resource usage:
+
    ```bash
    pm2 monit
    ```

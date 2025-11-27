@@ -4,7 +4,10 @@ import { describe, it, expect } from "vitest";
  * Test the error message logic from PostComposer
  * Extracted as pure function for testability
  */
-function getErrorMessage(status: number, action: string = "create draft"): string {
+function getErrorMessage(
+  status: number,
+  action: string = "create draft"
+): string {
   switch (status) {
   case 401:
   case 403:

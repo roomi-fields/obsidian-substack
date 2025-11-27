@@ -56,7 +56,7 @@ describe("MarkdownConverter", () => {
 
     it("should convert h2-h6 headers", () => {
       for (let level = 2; level <= 6; level++) {
-        const markdown = "#".repeat(level) + " Header " + level;
+        const markdown = `${"#".repeat(level)} Header ${level}`;
         const result = converter.convert(markdown);
         expect(result.content[0]).toMatchObject({
           type: "heading",
@@ -266,7 +266,9 @@ describe("MarkdownConverter", () => {
 
   describe("images", () => {
     it("should convert image", () => {
-      const result = converter.convert("![Alt text](https://example.com/image.png)");
+      const result = converter.convert(
+        "![Alt text](https://example.com/image.png)"
+      );
       expect(result.content[0]).toMatchObject({
         type: "image2",
         attrs: {
@@ -278,7 +280,9 @@ describe("MarkdownConverter", () => {
     });
 
     it("should handle image with title", () => {
-      const result = converter.convert('![Alt](https://example.com/img.png "Title")');
+      const result = converter.convert(
+        '![Alt](https://example.com/img.png "Title")'
+      );
       expect(result.content[0]).toMatchObject({
         type: "image2",
         attrs: {

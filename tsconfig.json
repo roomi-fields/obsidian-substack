@@ -17,20 +17,10 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "exactOptionalPropertyTypes": true,
-    "lib": [
-      "DOM",
-      "ES6",
-      "ES2022"
-    ],
+    "lib": ["DOM", "ES6", "ES2022"],
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build"
-  ]
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist", "build"]
 }

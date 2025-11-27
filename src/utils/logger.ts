@@ -4,7 +4,7 @@ export enum LogLevel {
   DEBUG = 0,
   INFO = 1,
   WARN = 2,
-  ERROR = 3
+  ERROR = 3,
 }
 
 const LOG_FILE = "substack-publisher.log";
@@ -12,22 +12,58 @@ const MAX_LOG_SIZE = 100000; // 100k chars, truncate if larger
 
 // No-op logger that does nothing
 class NoOpLogger {
-  setDevMode(_devMode: boolean): void { /* no-op */ }
-  setApp(_app: App): void { /* no-op */ }
-  debug(_message: string, ..._args: unknown[]): void { /* no-op */ }
-  info(_message: string, ..._args: unknown[]): void { /* no-op */ }
-  warn(_message: string, ..._args: unknown[]): void { /* no-op */ }
-  error(_message: string, _error?: unknown): void { /* no-op */ }
-  time(_label: string): void { /* no-op */ }
-  timeEnd(_label: string): void { /* no-op */ }
-  group(_title: string): void { /* no-op */ }
-  groupEnd(): void { /* no-op */ }
-  table(_data: unknown, _title?: string): void { /* no-op */ }
-  logPluginLoad(): void { /* no-op */ }
-  logPluginUnload(): void { /* no-op */ }
-  logCommandExecution(_commandId: string): void { /* no-op */ }
-  logSettingsChange(_setting: string, _oldValue: unknown, _newValue: unknown): void { /* no-op */ }
-  setLogLevel(_logLevel: LogLevel): void { /* no-op */ }
+  setDevMode(_devMode: boolean): void {
+    /* no-op */
+  }
+  setApp(_app: App): void {
+    /* no-op */
+  }
+  debug(_message: string, ..._args: unknown[]): void {
+    /* no-op */
+  }
+  info(_message: string, ..._args: unknown[]): void {
+    /* no-op */
+  }
+  warn(_message: string, ..._args: unknown[]): void {
+    /* no-op */
+  }
+  error(_message: string, _error?: unknown): void {
+    /* no-op */
+  }
+  time(_label: string): void {
+    /* no-op */
+  }
+  timeEnd(_label: string): void {
+    /* no-op */
+  }
+  group(_title: string): void {
+    /* no-op */
+  }
+  groupEnd(): void {
+    /* no-op */
+  }
+  table(_data: unknown, _title?: string): void {
+    /* no-op */
+  }
+  logPluginLoad(): void {
+    /* no-op */
+  }
+  logPluginUnload(): void {
+    /* no-op */
+  }
+  logCommandExecution(_commandId: string): void {
+    /* no-op */
+  }
+  logSettingsChange(
+    _setting: string,
+    _oldValue: unknown,
+    _newValue: unknown
+  ): void {
+    /* no-op */
+  }
+  setLogLevel(_logLevel: LogLevel): void {
+    /* no-op */
+  }
 }
 
 export class Logger {
@@ -38,7 +74,11 @@ export class Logger {
   private logBuffer: string[] = [];
   private flushTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(name: string, devMode: boolean = false, logLevel: LogLevel = LogLevel.INFO) {
+  constructor(
+    name: string,
+    devMode: boolean = false,
+    logLevel: LogLevel = LogLevel.INFO
+  ) {
     this.name = name;
     this.devMode = devMode;
     this.logLevel = logLevel;
@@ -215,12 +255,20 @@ export class Logger {
     this.debug(`Executing command: ${commandId}`);
   }
 
-  logSettingsChange(setting: string, oldValue: unknown, newValue: unknown): void {
+  logSettingsChange(
+    setting: string,
+    oldValue: unknown,
+    newValue: unknown
+  ): void {
     this.debug(`Setting changed: ${setting}`, { from: oldValue, to: newValue });
   }
 }
 
 // Factory function to create either real logger or no-op logger
-export function createLogger(name: string, devMode: boolean = false, logLevel: LogLevel = LogLevel.ERROR): Logger | NoOpLogger {
+export function createLogger(
+  name: string,
+  devMode: boolean = false,
+  logLevel: LogLevel = LogLevel.ERROR
+): Logger | NoOpLogger {
   return devMode ? new Logger(name, devMode, logLevel) : new NoOpLogger();
 }

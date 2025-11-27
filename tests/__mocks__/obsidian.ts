@@ -46,13 +46,27 @@ export class Modal {
 // Mock Setting
 export class Setting {
   constructor(_containerEl: unknown) {}
-  setName(_name: string) { return this; }
-  setDesc(_desc: string) { return this; }
-  setHeading() { return this; }
-  addText(_cb: unknown) { return this; }
-  addToggle(_cb: unknown) { return this; }
-  addButton(_cb: unknown) { return this; }
-  addDropdown(_cb: unknown) { return this; }
+  setName(_name: string) {
+    return this;
+  }
+  setDesc(_desc: string) {
+    return this;
+  }
+  setHeading() {
+    return this;
+  }
+  addText(_cb: unknown) {
+    return this;
+  }
+  addToggle(_cb: unknown) {
+    return this;
+  }
+  addButton(_cb: unknown) {
+    return this;
+  }
+  addDropdown(_cb: unknown) {
+    return this;
+  }
 }
 
 // Mock TFile

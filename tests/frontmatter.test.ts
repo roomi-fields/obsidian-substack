@@ -77,7 +77,8 @@ The actual content`;
     });
 
     it("should handle frontmatter with special characters", () => {
-      const input = "---\ntitle: \"Test: A Story\"\ndesc: It's great!\n---\nContent";
+      const input =
+        '---\ntitle: "Test: A Story"\ndesc: It\'s great!\n---\nContent';
       const result = removeFrontmatter(input);
       expect(result).toBe("Content");
     });

@@ -11,5 +11,5 @@ global.console = {
   timeEnd: vi.fn(),
   group: vi.fn(),
   groupEnd: vi.fn(),
-  table: vi.fn(),
+  table: vi.fn()
 };
