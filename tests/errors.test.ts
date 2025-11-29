@@ -6,22 +6,22 @@ import { describe, it, expect } from "vitest";
  */
 function getErrorMessage(
   status: number,
-  action: string = "create draft"
+  action: string = "create draft",
 ): string {
   switch (status) {
-  case 401:
-  case 403:
-    return "Session expired or invalid. Please login again in Settings.";
-  case 404:
-    return "Publication not found. Check your publication name in Settings.";
-  case 429:
-    return "Too many requests. Please wait a moment and try again.";
-  case 500:
-  case 502:
-  case 503:
-    return "Substack is temporarily unavailable. Please try again later.";
-  default:
-    return `Failed to ${action} (error ${status})`;
+    case 401:
+    case 403:
+      return "Session expired or invalid. Please login again in Settings.";
+    case 404:
+      return "Publication not found. Check your publication name in Settings.";
+    case 429:
+      return "Too many requests. Please wait a moment and try again.";
+    case 500:
+    case 502:
+    case 503:
+      return "Substack is temporarily unavailable. Please try again later.";
+    default:
+      return `Failed to ${action} (error ${status})`;
   }
 }
 

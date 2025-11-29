@@ -1,6 +1,6 @@
 # Roadmap - Obsidian Substack Publisher
 
-## v1.0.7 ✅ (Current)
+## v1.0.7 ✅
 
 - [x] Automatic Substack login (desktop only)
 - [x] Session cookie capture via Electron BrowserWindow
@@ -22,29 +22,33 @@
 
 ---
 
-## v1.1.0 - Image Upload
+## v1.1.0 ✅
 
-- [ ] Upload local images to Substack CDN (PNG, JPG)
-- [ ] Support embedded images `![alt](path/to/image.png)`
-- [ ] Auto-convert local paths → Substack URLs
+- [x] Upload local images to Substack CDN (PNG, JPG)
+- [x] Support embedded images `![alt](path/to/image.png)`
+- [x] Auto-convert local paths → Substack URLs
 
-## v1.2.0 - Publication améliorée
+## v1.2.0 ✅
 
-- [ ] Audience selector (everyone, paid only, free only, founding)
+- [x] YAML frontmatter support (`title`, `subtitle`, `audience`, `tags`, `section`)
+- [x] Audience selector (everyone, paid only, free only, founding)
+- [x] Tags support via frontmatter and modal input
+- [x] Section support (fetched from publication, select in modal)
+- [x] Ribbon icon position fixed (bottom of ribbon)
+- [x] Auto-detect paid subscriptions from publication settings
+- [x] Default settings for publication, section, audience, tags
+- [x] Refresh button to fetch publications/sections from Substack
+
+## v1.3.0 - Publication améliorée
+
 - [ ] Post link display after publication
-- [ ] YAML frontmatter support (`title`, `subtitle`, `audience`)
 - [ ] Update existing draft (link note ↔ draft via frontmatter)
-
-## v1.3.0 - Cover Image & Metadata
-
 - [ ] Cover image support (upload + set as post cover)
+
+## v1.4.0 - Advanced Features
+
 - [ ] Paywall marker in Markdown (`<!-- paywall -->`)
 - [ ] Scheduled publishing (if feasible)
-
-## v1.4.0 - Tags & Sections
-
-- [ ] Tags support via frontmatter
-- [ ] Section support (categorize posts)
 
 ---
 

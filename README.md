@@ -21,6 +21,9 @@
 - **📚 Multi-Publication** — Manage multiple Substack publications
 - **🔄 Markdown Conversion** — Full conversion to Substack format
 - **🖼️ Image Upload** — Local images auto-uploaded to Substack CDN
+- **🎯 Audience Control** — Target everyone, paid-only, free-only, or founding members
+- **🏷️ Tags & Sections** — Organize posts with tags and publication sections
+- **📋 Frontmatter Support** — Set title, subtitle, audience, tags, and section via YAML
 
 ### Supported Markdown
 
@@ -127,9 +130,8 @@ See [ROADMAP.md](./docs/ROADMAP.md) for planned features.
 
 **Coming soon:**
 
-- 🎯 **v1.2** — Audience selector (free/paid) + frontmatter
-- 📸 **v1.3** — Cover image + paywall marker
-- 🏷️ **v1.4** — Tags and sections
+- 📸 **v1.3** — Cover image support + post link after publish
+- ⏰ **v1.4** — Paywall marker + scheduled publishing
 
 ---
 

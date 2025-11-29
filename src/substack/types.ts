@@ -124,12 +124,38 @@ export interface SubstackDocument {
   content: SubstackBlock[];
 }
 
+// Audience type
+export type SubstackAudience =
+  | "everyone"
+  | "only_paid"
+  | "founding"
+  | "only_free";
+
 // Draft creation/update payload
 export interface SubstackDraftPayload {
   title: string;
   subtitle?: string;
   body: SubstackDocument;
-  audience?: "everyone" | "only_paid" | "founding" | "only_free";
+  audience?: SubstackAudience;
+  postTags?: string[];
+}
+
+// Section from Substack API
+export interface SubstackSection {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  is_live: boolean; // API returns is_live, not active
+}
+
+// Frontmatter fields for Substack
+export interface SubstackFrontmatter {
+  title?: string;
+  subtitle?: string;
+  audience?: SubstackAudience;
+  tags?: string[];
+  section?: string;
 }
 
 // API response types

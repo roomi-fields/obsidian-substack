@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { LogLevel, Logger, createLogger } from "../src/utils/logger";
 
 describe("createLogger factory", () => {
@@ -146,7 +146,7 @@ describe("Logger", () => {
 
     it("should handle logSettingsChange", () => {
       expect(() =>
-        logger.logSettingsChange("setting", "oldValue", "newValue")
+        logger.logSettingsChange("setting", "oldValue", "newValue"),
       ).not.toThrow();
     });
   });

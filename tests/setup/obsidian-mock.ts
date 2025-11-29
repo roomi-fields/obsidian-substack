@@ -18,5 +18,5 @@ export default {
   Notice,
   TFile,
   Editor,
-  MarkdownView
+  MarkdownView,
 };

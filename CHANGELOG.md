@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-11-29
+
+### Added
+
+- **YAML frontmatter support** - Set `title`, `subtitle`, `audience`, `tags`, and `section` in frontmatter
+- **Audience selector** - Target everyone, paid-only, free-only, or founding members
+- **Tags support** - Add tags via frontmatter or modal input
+- **Sections support** - Select publication sections (auto-fetched from Substack)
+- **Auto-detect paid subscriptions** - Paid subscription status fetched from publication settings
+- **Default settings** - Configure default publication, section, audience, and tags in settings
+- **Refresh button** - Fetch publications and sections from Substack with one click
+
+### Changed
+
+- Settings UI reorganized with Authentication, Defaults, and Advanced sections
+- Ribbon icon now positioned at bottom of ribbon
+- Test coverage improved to 43.65% (173 tests)
+
+### Fixed
+
+- ESLint sentence-case compliance for all UI text
+- Removed unused imports and debug code
+
 ## [1.1.0] - 2025-11-27
 
 ### Added
@@ -152,6 +175,7 @@ Built upon open-source projects:
 
 ---
 
+[1.2.0]: https://github.com/roomi-fields/obsidian-substack/releases/tag/v1.2.0
 [1.1.0]: https://github.com/roomi-fields/obsidian-substack/releases/tag/v1.1.0
 [1.0.7]: https://github.com/roomi-fields/obsidian-substack/releases/tag/v1.0.7
 [1.0.6]: https://github.com/roomi-fields/obsidian-substack/releases/tag/v1.0.6

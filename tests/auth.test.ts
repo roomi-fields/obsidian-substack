@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.mock("obsidian", () => ({
   Notice: vi.fn(),
   Platform: { isDesktop: true },
-  requestUrl: vi.fn()
+  requestUrl: vi.fn(),
 }));
 
 import { SubstackAuth } from "../src/substack/auth";

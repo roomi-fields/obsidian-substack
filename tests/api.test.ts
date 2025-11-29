@@ -3,7 +3,7 @@ import { SubstackAPI } from "../src/substack/api";
 
 // Mock obsidian module
 vi.mock("obsidian", () => ({
-  requestUrl: vi.fn()
+  requestUrl: vi.fn(),
 }));
 
 import { requestUrl } from "obsidian";
@@ -15,7 +15,7 @@ function mockResponse(status: number, json: unknown = {}) {
     json,
     headers: {},
     arrayBuffer: new ArrayBuffer(0),
-    text: JSON.stringify(json)
+    text: JSON.stringify(json),
   };
 }
 
@@ -79,7 +79,7 @@ describe("SubstackAPI", () => {
       const headers = (api as any).getHeaders();
       expect(headers).toEqual({
         "Content-Type": "application/json",
-        Cookie: "substack.sid=test123"
+        Cookie: "substack.sid=test123",
       });
     });
   });
@@ -91,7 +91,7 @@ describe("SubstackAPI", () => {
 
     it("should construct correct payload with all required fields", async () => {
       vi.mocked(requestUrl).mockResolvedValueOnce(
-        mockResponse(201, { id: "draft-123" })
+        mockResponse(201, { id: "draft-123" }),
       );
 
       const body = { type: "doc" as const, content: [] };
@@ -103,9 +103,9 @@ describe("SubstackAPI", () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Cookie: "substack.sid=test123"
-          }
-        })
+            Cookie: "substack.sid=test123",
+          },
+        }),
       );
 
       const call = vi.mocked(requestUrl).mock.calls[0];
@@ -120,7 +120,7 @@ describe("SubstackAPI", () => {
 
     it("should handle optional subtitle correctly", async () => {
       vi.mocked(requestUrl).mockResolvedValueOnce(
-        mockResponse(201, { id: "draft-123" })
+        mockResponse(201, { id: "draft-123" }),
       );
 
       const body = { type: "doc" as const, content: [] };
@@ -135,7 +135,7 @@ describe("SubstackAPI", () => {
 
     it("should use empty string for undefined subtitle", async () => {
       vi.mocked(requestUrl).mockResolvedValueOnce(
-        mockResponse(201, { id: "draft-123" })
+        mockResponse(201, { id: "draft-123" }),
       );
 
       const body = { type: "doc" as const, content: [] };
@@ -150,7 +150,7 @@ describe("SubstackAPI", () => {
 
     it("should set throw: false for error handling", async () => {
       vi.mocked(requestUrl).mockResolvedValueOnce(
-        mockResponse(201, { id: "draft-123" })
+        mockResponse(201, { id: "draft-123" }),
       );
 
       const body = { type: "doc" as const, content: [] };
@@ -158,8 +158,8 @@ describe("SubstackAPI", () => {
 
       expect(requestUrl).toHaveBeenCalledWith(
         expect.objectContaining({
-          throw: false
-        })
+          throw: false,
+        }),
       );
     });
   });
@@ -177,8 +177,8 @@ describe("SubstackAPI", () => {
       expect(requestUrl).toHaveBeenCalledWith(
         expect.objectContaining({
           url: "https://mypub.substack.com/api/v1/drafts/draft-123/publish",
-          method: "POST"
-        })
+          method: "POST",
+        }),
       );
     });
   });
@@ -208,7 +208,7 @@ describe("SubstackAPI", () => {
 
     it("should call correct list drafts endpoint", async () => {
       vi.mocked(requestUrl).mockResolvedValueOnce(
-        mockResponse(200, [{ id: "draft-1" }, { id: "draft-2" }])
+        mockResponse(200, [{ id: "draft-1" }, { id: "draft-2" }]),
       );
 
       await api.listDrafts("mypub");
@@ -219,10 +219,10 @@ describe("SubstackAPI", () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Cookie: "substack.sid=test123"
+            Cookie: "substack.sid=test123",
           },
-          throw: false
-        })
+          throw: false,
+        }),
       );
     });
 
@@ -251,8 +251,8 @@ describe("SubstackAPI", () => {
         expect.objectContaining({
           url: "https://mypub.substack.com/api/v1/drafts/draft-123",
           method: "PUT",
-          throw: false
-        })
+          throw: false,
+        }),
       );
     });
 
@@ -290,7 +290,7 @@ describe("SubstackAPI", () => {
 
     it("should call correct get draft endpoint", async () => {
       vi.mocked(requestUrl).mockResolvedValueOnce(
-        mockResponse(200, { id: "draft-123", title: "My Draft" })
+        mockResponse(200, { id: "draft-123", title: "My Draft" }),
       );
 
       await api.getDraft("mypub", "draft-123");
@@ -301,10 +301,10 @@ describe("SubstackAPI", () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Cookie: "substack.sid=test123"
+            Cookie: "substack.sid=test123",
           },
-          throw: false
-        })
+          throw: false,
+        }),
       );
     });
 
@@ -313,7 +313,7 @@ describe("SubstackAPI", () => {
         id: "draft-123",
         title: "My Draft",
         subtitle: "A subtitle",
-        body: { type: "doc", content: [] }
+        body: { type: "doc", content: [] },
       };
       vi.mocked(requestUrl).mockResolvedValueOnce(mockResponse(200, draftData));
 
@@ -325,7 +325,7 @@ describe("SubstackAPI", () => {
 
     it("should handle 404 for non-existent draft", async () => {
       vi.mocked(requestUrl).mockResolvedValueOnce(
-        mockResponse(404, { error: "Not found" })
+        mockResponse(404, { error: "Not found" }),
       );
 
       const response = await api.getDraft("mypub", "nonexistent");
@@ -341,7 +341,7 @@ describe("SubstackAPI", () => {
 
     it("should support only_paid audience", async () => {
       vi.mocked(requestUrl).mockResolvedValueOnce(
-        mockResponse(201, { id: "draft-123" })
+        mockResponse(201, { id: "draft-123" }),
       );
 
       const body = { type: "doc" as const, content: [] };
@@ -356,7 +356,7 @@ describe("SubstackAPI", () => {
 
     it("should support founding audience", async () => {
       vi.mocked(requestUrl).mockResolvedValueOnce(
-        mockResponse(201, { id: "draft-123" })
+        mockResponse(201, { id: "draft-123" }),
       );
 
       const body = { type: "doc" as const, content: [] };
@@ -371,7 +371,7 @@ describe("SubstackAPI", () => {
 
     it("should support only_free audience", async () => {
       vi.mocked(requestUrl).mockResolvedValueOnce(
-        mockResponse(201, { id: "draft-123" })
+        mockResponse(201, { id: "draft-123" }),
       );
 
       const body = { type: "doc" as const, content: [] };
@@ -398,8 +398,8 @@ describe("SubstackAPI", () => {
           contentType: "image/png",
           bytes: 5000,
           imageWidth: 800,
-          imageHeight: 600
-        })
+          imageHeight: 600,
+        }),
       );
 
       const imageData = new ArrayBuffer(5000);
@@ -409,8 +409,8 @@ describe("SubstackAPI", () => {
         expect.objectContaining({
           url: "https://mypub.substack.com/api/v1/image",
           method: "POST",
-          throw: false
-        })
+          throw: false,
+        }),
       );
     });
 
@@ -422,15 +422,15 @@ describe("SubstackAPI", () => {
           contentType: "image/png",
           bytes: 5000,
           imageWidth: 800,
-          imageHeight: 600
-        })
+          imageHeight: 600,
+        }),
       );
 
       const result = await api.uploadImage(
         "mypub",
         new ArrayBuffer(5000),
         "photo.png",
-        "image/png"
+        "image/png",
       );
 
       expect(result.success).toBe(true);
@@ -440,14 +440,14 @@ describe("SubstackAPI", () => {
 
     it("should return error on failed upload", async () => {
       vi.mocked(requestUrl).mockResolvedValueOnce(
-        mockResponse(500, { error: "Server error" })
+        mockResponse(500, { error: "Server error" }),
       );
 
       const result = await api.uploadImage(
         "mypub",
         new ArrayBuffer(5000),
         "photo.png",
-        "image/png"
+        "image/png",
       );
 
       expect(result.success).toBe(false);
@@ -457,14 +457,14 @@ describe("SubstackAPI", () => {
 
     it("should return error on 401 unauthorized", async () => {
       vi.mocked(requestUrl).mockResolvedValueOnce(
-        mockResponse(401, { error: "Unauthorized" })
+        mockResponse(401, { error: "Unauthorized" }),
       );
 
       const result = await api.uploadImage(
         "mypub",
         new ArrayBuffer(5000),
         "photo.png",
-        "image/png"
+        "image/png",
       );
 
       expect(result.success).toBe(false);
@@ -478,14 +478,14 @@ describe("SubstackAPI", () => {
         "mypub",
         new ArrayBuffer(5000),
         "photo.png",
-        "image/png"
+        "image/png",
       );
 
       const call = vi.mocked(requestUrl).mock.calls[0];
       const callArg = call?.[0] as { headers?: Record<string, string> };
 
       expect(callArg.headers?.["Content-Type"]).toBe(
-        "application/x-www-form-urlencoded"
+        "application/x-www-form-urlencoded",
       );
     });
 
@@ -496,7 +496,7 @@ describe("SubstackAPI", () => {
         "mypub",
         new ArrayBuffer(5000),
         "photo.png",
-        "image/png"
+        "image/png",
       );
 
       const call = vi.mocked(requestUrl).mock.calls[0];
@@ -513,7 +513,7 @@ describe("SubstackAPI", () => {
 
     it("should return 401 response for invalid cookie", async () => {
       vi.mocked(requestUrl).mockResolvedValueOnce(
-        mockResponse(401, { error: "Unauthorized" })
+        mockResponse(401, { error: "Unauthorized" }),
       );
 
       const response = await api.listDrafts("mypub");
@@ -523,7 +523,7 @@ describe("SubstackAPI", () => {
 
     it("should return 403 response for forbidden access", async () => {
       vi.mocked(requestUrl).mockResolvedValueOnce(
-        mockResponse(403, { error: "Forbidden" })
+        mockResponse(403, { error: "Forbidden" }),
       );
 
       const response = await api.listDrafts("mypub");
@@ -533,13 +533,202 @@ describe("SubstackAPI", () => {
 
     it("should return 500 response for server error", async () => {
       vi.mocked(requestUrl).mockResolvedValueOnce(
-        mockResponse(500, { error: "Internal Server Error" })
+        mockResponse(500, { error: "Internal Server Error" }),
       );
 
       const body = { type: "doc" as const, content: [] };
       const response = await api.createDraft("mypub", "Title", body);
 
       expect(response.status).toBe(500);
+    });
+  });
+
+  describe("createDraft with tags", () => {
+    beforeEach(() => {
+      api = new SubstackAPI("substack.sid=test123");
+    });
+
+    it("should include tags in payload when provided", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(
+        mockResponse(201, { id: "draft-123" }),
+      );
+
+      const body = { type: "doc" as const, content: [] };
+      await api.createDraft("mypub", "Title", body, undefined, "everyone", [
+        "tech",
+        "tutorial",
+      ]);
+
+      const call = vi.mocked(requestUrl).mock.calls[0];
+      const callArg = call?.[0] as { body?: string };
+      const payload = JSON.parse(callArg.body || "{}");
+
+      expect(payload.postTags).toEqual(["tech", "tutorial"]);
+    });
+
+    it("should not include postTags when tags array is empty", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(
+        mockResponse(201, { id: "draft-123" }),
+      );
+
+      const body = { type: "doc" as const, content: [] };
+      await api.createDraft("mypub", "Title", body, undefined, "everyone", []);
+
+      const call = vi.mocked(requestUrl).mock.calls[0];
+      const callArg = call?.[0] as { body?: string };
+      const payload = JSON.parse(callArg.body || "{}");
+
+      expect(payload.postTags).toBeUndefined();
+    });
+
+    it("should not include postTags when tags is undefined", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(
+        mockResponse(201, { id: "draft-123" }),
+      );
+
+      const body = { type: "doc" as const, content: [] };
+      await api.createDraft("mypub", "Title", body, undefined, "everyone");
+
+      const call = vi.mocked(requestUrl).mock.calls[0];
+      const callArg = call?.[0] as { body?: string };
+      const payload = JSON.parse(callArg.body || "{}");
+
+      expect(payload.postTags).toBeUndefined();
+    });
+
+    it("should include both audience and tags when both provided", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(
+        mockResponse(201, { id: "draft-123" }),
+      );
+
+      const body = { type: "doc" as const, content: [] };
+      await api.createDraft("mypub", "Title", body, "Subtitle", "only_paid", [
+        "premium",
+        "exclusive",
+      ]);
+
+      const call = vi.mocked(requestUrl).mock.calls[0];
+      const callArg = call?.[0] as { body?: string };
+      const payload = JSON.parse(callArg.body || "{}");
+
+      expect(payload.audience).toBe("only_paid");
+      expect(payload.postTags).toEqual(["premium", "exclusive"]);
+      expect(payload.draft_subtitle).toBe("Subtitle");
+    });
+  });
+
+  describe("getSections", () => {
+    beforeEach(() => {
+      api = new SubstackAPI("substack.sid=test123");
+    });
+
+    it("should call correct sections endpoint", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(
+        mockResponse(200, [
+          { id: 1, name: "Tech", slug: "tech", is_live: true },
+          { id: 2, name: "News", slug: "news", is_live: true },
+        ]),
+      );
+
+      await api.getSections("mypub");
+
+      expect(requestUrl).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: "https://mypub.substack.com/api/v1/publication/sections",
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Cookie: "substack.sid=test123",
+          },
+          throw: false,
+        }),
+      );
+    });
+
+    it("should return sections array on success", async () => {
+      const sections = [
+        { id: 1, name: "Tech", slug: "tech", is_live: true },
+        { id: 2, name: "News", slug: "news", is_live: false },
+      ];
+      vi.mocked(requestUrl).mockResolvedValueOnce(mockResponse(200, sections));
+
+      const result = await api.getSections("mypub");
+
+      expect(result).toEqual(sections);
+      expect(result).toHaveLength(2);
+    });
+
+    it("should return empty array on error", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(mockResponse(404));
+
+      const result = await api.getSections("mypub");
+
+      expect(result).toEqual([]);
+    });
+
+    it("should return empty array on 401 unauthorized", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(mockResponse(401));
+
+      const result = await api.getSections("mypub");
+
+      expect(result).toEqual([]);
+    });
+
+    it("should return empty array when response json is null", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(mockResponse(200, null));
+
+      const result = await api.getSections("mypub");
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("updateDraftSection", () => {
+    beforeEach(() => {
+      api = new SubstackAPI("substack.sid=test123");
+    });
+
+    it("should call updateDraft with section_id and section_chosen", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(mockResponse(200));
+
+      await api.updateDraftSection("mypub", "draft-123", 42);
+
+      expect(requestUrl).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: "https://mypub.substack.com/api/v1/drafts/draft-123",
+          method: "PUT",
+        }),
+      );
+
+      const call = vi.mocked(requestUrl).mock.calls[0];
+      const callArg = call?.[0] as { body?: string };
+      const payload = JSON.parse(callArg.body || "{}");
+
+      expect(payload.draft_section_id).toBe(42);
+      expect(payload.section_chosen).toBe(true);
+    });
+
+    it("should handle different section IDs", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(mockResponse(200));
+
+      await api.updateDraftSection("mypub", "draft-456", 99);
+
+      const call = vi.mocked(requestUrl).mock.calls[0];
+      const callArg = call?.[0] as { body?: string };
+      const payload = JSON.parse(callArg.body || "{}");
+
+      expect(payload.draft_section_id).toBe(99);
+    });
+
+    it("should return response from updateDraft", async () => {
+      vi.mocked(requestUrl).mockResolvedValueOnce(
+        mockResponse(200, { id: "draft-123", section_id: 42 }),
+      );
+
+      const response = await api.updateDraftSection("mypub", "draft-123", 42);
+
+      expect(response.status).toBe(200);
+      expect(response.json).toEqual({ id: "draft-123", section_id: 42 });
     });
   });
 });

@@ -121,10 +121,26 @@
 .substack-select {
     width: 100%;
     padding: 8px 12px;
+    min-height: 36px;
+    line-height: 1.4;
     border: 1px solid var(--background-modifier-border);
     border-radius: 4px;
     background-color: var(--background-primary);
     color: var(--text-normal);
+    font-size: 14px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 16px;
+    padding-right: 32px;
+}
+
+.substack-select:focus {
+    border-color: var(--interactive-accent);
+    outline: none;
 }
 
 .substack-preview-container {
@@ -206,4 +222,32 @@
     margin-top: 1rem;
     font-size: 0.9em;
     color: var(--text-muted);
+}
+
+/* Label row with refresh button */
+.substack-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.substack-refresh-button {
+    padding: 2px 8px;
+    font-size: 0.8em;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    background-color: var(--background-primary);
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.substack-refresh-button:hover {
+    background-color: var(--background-secondary);
+    color: var(--text-normal);
+}
+
+.substack-refresh-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }

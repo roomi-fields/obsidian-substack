@@ -23,7 +23,7 @@ vi.mock("obsidian", () => {
       path: string = "";
       name: string = "";
       stat: { size: number } = { size: 0 };
-    }
+    },
   };
 });
 
@@ -52,18 +52,18 @@ const mockLogger = {
   logPluginUnload: vi.fn(),
   logCommandExecution: vi.fn(),
   logSettingsChange: vi.fn(),
-  setLogLevel: vi.fn()
+  setLogLevel: vi.fn(),
 };
 
 // Mock Vault
 const createMockVault = () => ({
   getAbstractFileByPath: vi.fn(),
-  readBinary: vi.fn()
+  readBinary: vi.fn(),
 });
 
 // Mock API
 const createMockApi = () => ({
-  uploadImage: vi.fn()
+  uploadImage: vi.fn(),
 });
 
 describe("ImageHandler", () => {
@@ -78,7 +78,7 @@ describe("ImageHandler", () => {
     imageHandler = new ImageHandler(
       mockApi as unknown as SubstackAPI,
       mockVault as unknown as Vault,
-      mockLogger
+      mockLogger,
     );
   });
 
@@ -92,7 +92,7 @@ describe("ImageHandler", () => {
         fullMatch: "![alt text](image.png)",
         alt: "alt text",
         path: "image.png",
-        isLocal: true
+        isLocal: true,
       });
     });
 
@@ -106,7 +106,7 @@ describe("ImageHandler", () => {
         alt: "alt",
         path: "image.png",
         title: "Image Title",
-        isLocal: true
+        isLocal: true,
       });
     });
 
@@ -205,7 +205,7 @@ More text
     it("should resolve relative path with ./", () => {
       const result = imageHandler.resolveImagePath(
         "./images/photo.png",
-        "notes"
+        "notes",
       );
       expect(result).toBe("notes/images/photo.png");
     });
@@ -213,7 +213,7 @@ More text
     it("should resolve parent directory references", () => {
       const result = imageHandler.resolveImagePath(
         "../assets/image.png",
-        "notes/subfolder"
+        "notes/subfolder",
       );
       expect(result).toBe("notes/assets/image.png");
     });
@@ -221,7 +221,7 @@ More text
     it("should resolve multiple parent directory references", () => {
       const result = imageHandler.resolveImagePath(
         "../../shared/image.png",
-        "notes/deep/folder"
+        "notes/deep/folder",
       );
       expect(result).toBe("notes/shared/image.png");
     });
@@ -229,7 +229,7 @@ More text
     it("should resolve absolute paths (starting with /)", () => {
       const result = imageHandler.resolveImagePath(
         "/attachments/image.png",
-        "notes/folder"
+        "notes/folder",
       );
       expect(result).toBe("attachments/image.png");
     });
@@ -242,7 +242,7 @@ More text
     it("should normalize Windows-style backslashes", () => {
       const result = imageHandler.resolveImagePath(
         "images\\photo.png",
-        "notes\\folder"
+        "notes\\folder",
       );
       expect(result).toBe("notes/folder/images/photo.png");
     });
@@ -270,7 +270,11 @@ More text
     });
 
     it("should return error for file over 10MB", async () => {
-      const mockFile = createMockFile("large.png", "large.png", 15 * 1024 * 1024);
+      const mockFile = createMockFile(
+        "large.png",
+        "large.png",
+        15 * 1024 * 1024,
+      );
       mockVault.getAbstractFileByPath.mockReturnValue(mockFile);
 
       const result = await imageHandler.uploadImage("mypub", "large.png");
@@ -291,8 +295,8 @@ More text
           contentType: "image/png",
           bytes: 5000,
           imageWidth: 800,
-          imageHeight: 600
-        }
+          imageHeight: 600,
+        },
       });
 
       const result = await imageHandler.uploadImage("mypub", "photo.png");
@@ -303,7 +307,7 @@ More text
         "mypub",
         expect.any(ArrayBuffer),
         "photo.png",
-        "image/png"
+        "image/png",
       );
     });
 
@@ -313,7 +317,7 @@ More text
       mockVault.readBinary.mockResolvedValue(new ArrayBuffer(5000));
       mockApi.uploadImage.mockResolvedValue({
         success: false,
-        error: "Upload failed: 500 - Server error"
+        error: "Upload failed: 500 - Server error",
       });
 
       const result = await imageHandler.uploadImage("mypub", "photo.jpg");
@@ -328,7 +332,7 @@ More text
       mockVault.readBinary.mockResolvedValue(new ArrayBuffer(5000));
       mockApi.uploadImage.mockResolvedValue({
         success: true,
-        data: { url: "https://cdn.com/photo.jpeg" }
+        data: { url: "https://cdn.com/photo.jpeg" },
       });
 
       await imageHandler.uploadImage("mypub", "photo.jpeg");
@@ -337,7 +341,7 @@ More text
         "mypub",
         expect.any(ArrayBuffer),
         "photo.jpeg",
-        "image/jpeg"
+        "image/jpeg",
       );
     });
 
@@ -347,7 +351,7 @@ More text
       mockVault.readBinary.mockResolvedValue(new ArrayBuffer(5000));
       mockApi.uploadImage.mockResolvedValue({
         success: true,
-        data: { url: "https://cdn.com/anim.gif" }
+        data: { url: "https://cdn.com/anim.gif" },
       });
 
       await imageHandler.uploadImage("mypub", "anim.gif");
@@ -356,7 +360,7 @@ More text
         "mypub",
         expect.any(ArrayBuffer),
         "anim.gif",
-        "image/gif"
+        "image/gif",
       );
     });
 
@@ -366,7 +370,7 @@ More text
       mockVault.readBinary.mockResolvedValue(new ArrayBuffer(5000));
       mockApi.uploadImage.mockResolvedValue({
         success: true,
-        data: { url: "https://cdn.com/image.webp" }
+        data: { url: "https://cdn.com/image.webp" },
       });
 
       await imageHandler.uploadImage("mypub", "image.webp");
@@ -375,20 +379,19 @@ More text
         "mypub",
         expect.any(ArrayBuffer),
         "image.webp",
-        "image/webp"
+        "image/webp",
       );
     });
   });
 
   describe("processMarkdownImages", () => {
     it("should leave web URLs unchanged", async () => {
-      const markdown =
-        "![alt](https://example.com/image.png)\n\nSome text";
+      const markdown = "![alt](https://example.com/image.png)\n\nSome text";
 
       const result = await imageHandler.processMarkdownImages(
         "mypub",
         markdown,
-        ""
+        "",
       );
 
       expect(result.processedMarkdown).toBe(markdown);
@@ -404,22 +407,22 @@ More text
       mockVault.readBinary.mockResolvedValue(new ArrayBuffer(5000));
       mockApi.uploadImage.mockResolvedValue({
         success: true,
-        data: { url: "https://substackcdn.com/photo.png" }
+        data: { url: "https://substackcdn.com/photo.png" },
       });
 
       const result = await imageHandler.processMarkdownImages(
         "mypub",
         markdown,
-        ""
+        "",
       );
 
       expect(result.processedMarkdown).toBe(
-        "![photo](https://substackcdn.com/photo.png)\n\nSome text"
+        "![photo](https://substackcdn.com/photo.png)\n\nSome text",
       );
       expect(result.uploadedImages).toHaveLength(1);
       expect(result.uploadedImages[0]).toEqual({
         originalPath: "images/photo.png",
-        cdnUrl: "https://substackcdn.com/photo.png"
+        cdnUrl: "https://substackcdn.com/photo.png",
       });
     });
 
@@ -431,17 +434,17 @@ More text
       mockVault.readBinary.mockResolvedValue(new ArrayBuffer(5000));
       mockApi.uploadImage.mockResolvedValue({
         success: true,
-        data: { url: "https://cdn.com/photo.png" }
+        data: { url: "https://cdn.com/photo.png" },
       });
 
       const result = await imageHandler.processMarkdownImages(
         "mypub",
         markdown,
-        ""
+        "",
       );
 
       expect(result.processedMarkdown).toBe(
-        '![photo](https://cdn.com/photo.png "My Caption")'
+        '![photo](https://cdn.com/photo.png "My Caption")',
       );
     });
 
@@ -457,17 +460,17 @@ More text
       mockApi.uploadImage
         .mockResolvedValueOnce({
           success: true,
-          data: { url: "https://cdn.com/a.png" }
+          data: { url: "https://cdn.com/a.png" },
         })
         .mockResolvedValueOnce({
           success: true,
-          data: { url: "https://cdn.com/b.png" }
+          data: { url: "https://cdn.com/b.png" },
         });
 
       const result = await imageHandler.processMarkdownImages(
         "mypub",
         markdown,
-        ""
+        "",
       );
 
       expect(result.uploadedImages).toHaveLength(2);
@@ -482,7 +485,7 @@ More text
       const result = await imageHandler.processMarkdownImages(
         "mypub",
         markdown,
-        ""
+        "",
       );
 
       expect(result.errors).toHaveLength(1);
@@ -500,13 +503,13 @@ More text
       mockVault.readBinary.mockResolvedValue(new ArrayBuffer(1000));
       mockApi.uploadImage.mockResolvedValue({
         success: true,
-        data: { url: "https://cdn.com/exists.png" }
+        data: { url: "https://cdn.com/exists.png" },
       });
 
       const result = await imageHandler.processMarkdownImages(
         "mypub",
         markdown,
-        ""
+        "",
       );
 
       expect(result.errors).toHaveLength(1);
@@ -522,17 +525,17 @@ More text
       mockVault.readBinary.mockResolvedValue(new ArrayBuffer(5000));
       mockApi.uploadImage.mockResolvedValue({
         success: true,
-        data: { url: "https://cdn.com/photo.png" }
+        data: { url: "https://cdn.com/photo.png" },
       });
 
-      const result = await imageHandler.processMarkdownImages(
+      await imageHandler.processMarkdownImages(
         "mypub",
         markdown,
-        "notes/subfolder"
+        "notes/subfolder",
       );
 
       expect(mockVault.getAbstractFileByPath).toHaveBeenCalledWith(
-        "notes/images/photo.png"
+        "notes/images/photo.png",
       );
     });
 
@@ -544,7 +547,7 @@ More text
       mockVault.readBinary.mockResolvedValue(new ArrayBuffer(5000));
       mockApi.uploadImage.mockResolvedValue({
         success: true,
-        data: { url: "https://cdn.com/photo.png" }
+        data: { url: "https://cdn.com/photo.png" },
       });
 
       await imageHandler.processMarkdownImages("mypub", markdown, "");

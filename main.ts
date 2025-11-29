@@ -4,25 +4,38 @@ import {
   Platform,
   Plugin,
   PluginSettingTab,
-  Setting
+  Setting,
 } from "obsidian";
 import { Logger, LogLevel, createLogger } from "./src/utils/logger";
 import { SubstackAPI } from "./src/substack/api";
 import { SubstackPostComposer } from "./src/substack/PostComposer";
 import { SubstackAuth } from "./src/substack/auth";
+import { SubstackAudience, SubstackSection } from "./src/substack/types";
 
 interface SubstackPublisherSettings {
   devMode: boolean;
   logLevel: LogLevel;
   substackCookie: string;
   publications: string[];
+  defaultPublication: string;
+  sections: SubstackSection[];
+  defaultSectionId: number | null;
+  defaultAudience: SubstackAudience;
+  defaultTags: string[];
+  paidSubscribersEnabled: boolean;
 }
 
 const DEFAULT_SETTINGS: SubstackPublisherSettings = {
   devMode: false,
   logLevel: LogLevel.ERROR,
   substackCookie: "",
-  publications: []
+  publications: [],
+  defaultPublication: "",
+  sections: [],
+  defaultSectionId: null,
+  defaultAudience: "everyone",
+  defaultTags: [],
+  paidSubscribersEnabled: false,
 };
 
 export default class SubstackPublisherPlugin extends Plugin {
@@ -35,7 +48,7 @@ export default class SubstackPublisherPlugin extends Plugin {
     this.logger = createLogger(
       "Substack Publisher",
       this.settings.devMode,
-      this.settings.logLevel
+      this.settings.logLevel,
     );
 
     if ("setApp" in this.logger) {
@@ -49,17 +62,24 @@ export default class SubstackPublisherPlugin extends Plugin {
       "Publish to substack",
       () => {
         this.publishToSubstack();
-      }
+      },
     );
 
     ribbonIconEl.addClass("substack-ribbon-class");
+
+    // Move icon to bottom of ribbon after layout is ready
+    this.app.workspace.onLayoutReady(() => {
+      setTimeout(() => {
+        ribbonIconEl.parentElement?.appendChild(ribbonIconEl);
+      }, 100);
+    });
 
     this.addCommand({
       id: "publish-to-substack",
       name: "Publish to substack",
       callback: () => {
         this.publishToSubstack();
-      }
+      },
     });
 
     this.addSettingTab(new SubstackPublisherSettingTab(this.app, this));
@@ -76,7 +96,7 @@ export default class SubstackPublisherPlugin extends Plugin {
       this.logger = createLogger(
         "Substack Publisher",
         this.settings.devMode,
-        this.settings.logLevel
+        this.settings.logLevel,
       );
     }
   }
@@ -88,7 +108,7 @@ export default class SubstackPublisherPlugin extends Plugin {
       this.logger = createLogger(
         "Substack Publisher",
         this.settings.devMode,
-        this.settings.logLevel
+        this.settings.logLevel,
       );
     }
   }
@@ -98,13 +118,15 @@ export default class SubstackPublisherPlugin extends Plugin {
 
     if (!this.settings.substackCookie) {
       new Notice(
-        "Please configure your substack authentication in settings first."
+        "Please configure your substack authentication in settings first.",
       );
       return;
     }
 
     if (this.settings.publications.length === 0) {
-      new Notice("Please add at least one publication in settings first.");
+      new Notice(
+        "Please click 'refresh' in settings to fetch your publications.",
+      );
       return;
     }
 
@@ -114,7 +136,17 @@ export default class SubstackPublisherPlugin extends Plugin {
       this.app,
       api,
       this.settings.publications,
-      this.logger
+      this.logger,
+      {
+        defaultPublication:
+          this.settings.defaultPublication ||
+          this.settings.publications[0] ||
+          "",
+        defaultSectionId: this.settings.defaultSectionId,
+        defaultAudience: this.settings.defaultAudience,
+        defaultTags: this.settings.defaultTags,
+        paidSubscribersEnabled: this.settings.paidSubscribersEnabled,
+      },
     );
     composer.open();
   }
@@ -144,12 +176,12 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
       new Setting(containerEl)
         .setName("Login")
         .setDesc(
-          `${authStatus}. Click to open Substack login window and automatically capture your session`
+          `${authStatus}. Click to open Substack login window and automatically capture your session`,
         )
         .addButton((button) => {
           button
             .setButtonText(
-              this.plugin.settings.substackCookie ? "Re-login" : "Login"
+              this.plugin.settings.substackCookie ? "Re-login" : "Login",
             )
             .setCta()
             .onClick(() => {
@@ -170,7 +202,7 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
       .setDesc(
         Platform.isDesktop
           ? "Alternative: paste your cookie manually if auto-login doesn't work"
-          : "Paste your Substack session cookie (substack.sid) from browser DevTools → Application → Cookies"
+          : "Paste your Substack session cookie (substack.sid) from browser DevTools → Application → Cookies",
       )
       .addText((text) => {
         text
@@ -188,19 +220,201 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
       manualSetting.settingEl.addClass("substack-setting-muted");
     }
 
-    new Setting(containerEl).setName("Publication").setHeading();
+    new Setting(containerEl).setName("Defaults").setHeading();
 
+    // Refresh button to fetch publications and sections
     new Setting(containerEl)
-      .setName("Subdomains")
+      .setName("Refresh from substack")
+      .setDesc("Fetch your publications and sections from substack")
+      .addButton((button) => {
+        button.setButtonText("↻ refresh").onClick(async () => {
+          if (!this.plugin.settings.substackCookie) {
+            new Notice("Please login first.");
+            return;
+          }
+
+          button.setButtonText("...");
+          button.setDisabled(true);
+
+          try {
+            const api = new SubstackAPI(this.plugin.settings.substackCookie);
+
+            // Fetch publications with paid status info
+            const publicationsInfo = await api.getUserPublicationsWithInfo();
+            if (publicationsInfo.length > 0) {
+              this.plugin.settings.publications = publicationsInfo.map(
+                (p) => p.subdomain,
+              );
+
+              // Auto-detect paid subscriptions for the default publication
+              const defaultPubInfo =
+                publicationsInfo.find(
+                  (p) =>
+                    p.subdomain === this.plugin.settings.defaultPublication,
+                ) || publicationsInfo[0];
+
+              if (defaultPubInfo) {
+                this.plugin.settings.paidSubscribersEnabled =
+                  defaultPubInfo.hasPaidSubscriptions;
+              }
+
+              // Set default publication if not set or invalid
+              if (
+                !this.plugin.settings.defaultPublication ||
+                !this.plugin.settings.publications.includes(
+                  this.plugin.settings.defaultPublication,
+                )
+              ) {
+                this.plugin.settings.defaultPublication =
+                  publicationsInfo[0]?.subdomain || "";
+              }
+            }
+
+            // Fetch sections for default publication
+            if (this.plugin.settings.defaultPublication) {
+              const sections = await api.getSections(
+                this.plugin.settings.defaultPublication,
+              );
+              this.plugin.settings.sections = sections;
+              // Set default section if not set or invalid
+              const validSectionIds = sections
+                .filter((s) => s.is_live)
+                .map((s) => s.id);
+              if (
+                this.plugin.settings.defaultSectionId === null ||
+                !validSectionIds.includes(this.plugin.settings.defaultSectionId)
+              ) {
+                // Default to first live section
+                const firstLive = sections.find((s) => s.is_live);
+                this.plugin.settings.defaultSectionId = firstLive?.id ?? null;
+              }
+            }
+
+            await this.plugin.saveSettings();
+            this.display(); // Refresh UI
+
+            const paidStatus = this.plugin.settings.paidSubscribersEnabled
+              ? "paid enabled"
+              : "free only";
+            new Notice(
+              `Refreshed: ${this.plugin.settings.publications.length} publication(s), ${this.plugin.settings.sections.length} section(s), ${paidStatus}`,
+            );
+          } catch (error) {
+            const msg =
+              error instanceof Error ? error.message : "Unknown error";
+            new Notice(`Refresh failed: ${msg}`);
+          } finally {
+            button.setButtonText("↻ refresh");
+            button.setDisabled(false);
+          }
+        });
+      });
+
+    // Default Publication dropdown
+    const publicationSetting = new Setting(containerEl)
+      .setName("Default publication")
       .setDesc(
-        "Comma-separated list of your publication subdomains (e.g., mypub, anotherpub)"
-      )
+        this.plugin.settings.publications.length === 0
+          ? "Click 'refresh' above to load your publications"
+          : "Publication used by default when publishing",
+      );
+
+    if (this.plugin.settings.publications.length > 0) {
+      publicationSetting.addDropdown((dropdown) => {
+        for (const pub of this.plugin.settings.publications) {
+          dropdown.addOption(pub, pub);
+        }
+        dropdown.setValue(this.plugin.settings.defaultPublication || "");
+        dropdown.onChange(async (value) => {
+          this.plugin.settings.defaultPublication = value;
+          // Reload sections for new publication
+          if (this.plugin.settings.substackCookie) {
+            const api = new SubstackAPI(this.plugin.settings.substackCookie);
+            this.plugin.settings.sections = await api.getSections(value);
+            const firstLive = this.plugin.settings.sections.find(
+              (s) => s.is_live,
+            );
+            this.plugin.settings.defaultSectionId = firstLive?.id ?? null;
+          }
+          await this.plugin.saveSettings();
+          this.display(); // Refresh to update sections dropdown
+        });
+      });
+    }
+
+    // Default Section dropdown
+    const liveSections = this.plugin.settings.sections.filter((s) => s.is_live);
+    const sectionSetting = new Setting(containerEl)
+      .setName("Default section")
+      .setDesc(
+        liveSections.length === 0
+          ? "Click 'refresh' above to load your sections"
+          : "Section used by default when publishing",
+      );
+
+    if (liveSections.length > 0) {
+      sectionSetting.addDropdown((dropdown) => {
+        for (const section of liveSections) {
+          dropdown.addOption(section.id.toString(), section.name);
+        }
+        dropdown.setValue(
+          this.plugin.settings.defaultSectionId?.toString() || "",
+        );
+        dropdown.onChange(async (value) => {
+          this.plugin.settings.defaultSectionId = value
+            ? parseInt(value)
+            : null;
+          await this.plugin.saveSettings();
+        });
+      });
+    }
+
+    // Paid subscribers toggle (informational, auto-detected)
+    new Setting(containerEl)
+      .setName("Paid subscribers enabled")
+      .setDesc("Auto-detected from substack. Toggle manually if incorrect.")
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.paidSubscribersEnabled)
+          .onChange(async (value) => {
+            this.plugin.settings.paidSubscribersEnabled = value;
+            // Reset to "everyone" if disabling paid
+            if (!value) {
+              this.plugin.settings.defaultAudience = "everyone";
+            }
+            await this.plugin.saveSettings();
+            this.display(); // Refresh to update audience options
+          }),
+      );
+
+    // Default Audience dropdown - only show if paid subscribers enabled
+    if (this.plugin.settings.paidSubscribersEnabled) {
+      new Setting(containerEl)
+        .setName("Default audience")
+        .setDesc("Audience used by default when publishing")
+        .addDropdown((dropdown) => {
+          dropdown.addOption("everyone", "Everyone");
+          dropdown.addOption("only_paid", "Paid subscribers only");
+          dropdown.addOption("founding", "Founding members only");
+          dropdown.addOption("only_free", "Free subscribers only");
+          dropdown.setValue(this.plugin.settings.defaultAudience);
+          dropdown.onChange(async (value) => {
+            this.plugin.settings.defaultAudience = value as SubstackAudience;
+            await this.plugin.saveSettings();
+          });
+        });
+    }
+
+    // Default Tags
+    new Setting(containerEl)
+      .setName("Default tags")
+      .setDesc("Tags added by default when publishing (comma-separated)")
       .addText((text) => {
         text
-          .setPlaceholder("Publication")
-          .setValue(this.plugin.settings.publications.join(", "))
+          .setPlaceholder("Enter tags")
+          .setValue(this.plugin.settings.defaultTags.join(", "))
           .onChange(async (value) => {
-            this.plugin.settings.publications = value
+            this.plugin.settings.defaultTags = value
               .split(",")
               .map((s) => s.trim())
               .filter((s) => s.length > 0);
@@ -213,7 +427,7 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Dev mode")
       .setDesc(
-        "Enable detailed logging for debugging. Only enable when troubleshooting issues."
+        "Enable detailed logging for debugging. Only enable when troubleshooting issues.",
       )
       .addToggle((toggle) =>
         toggle
@@ -225,10 +439,10 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
             const status = value ? "enabled" : "disabled";
             const message =
               status === "enabled" ? "Check console for detailed logs." : "";
-            new Notice(`Dev mode ${status}. ${message}`);
+            new Notice(`dev mode ${status}. ${message}`);
 
             this.display();
-          })
+          }),
       );
 
     if (this.plugin.settings.devMode) {
@@ -249,7 +463,7 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
               if (this.plugin.logger && "setLogLevel" in this.plugin.logger) {
                 this.plugin.logger.setLogLevel(this.plugin.settings.logLevel);
               }
-            })
+            }),
         );
     }
 
@@ -258,23 +472,23 @@ class SubstackPublisherSettingTab extends PluginSettingTab {
     versionSection.addClass("substack-version-wrapper");
 
     const versionContent = versionSection.createEl("div", {
-      attr: { class: "substack-version-content" }
+      attr: { class: "substack-version-content" },
     });
 
     versionContent.createEl("p", {
       text: "Substack publisher",
-      attr: { class: "substack-version-name" }
+      attr: { class: "substack-version-name" },
     });
 
     versionContent.createEl("a", {
       text: "Roomi-fields",
       href: "https://github.com/roomi-fields",
-      attr: { class: "substack-version-author" }
+      attr: { class: "substack-version-author" },
     });
 
     versionContent.createEl("span", {
       text: `v${this.plugin.manifest.version}`,
-      attr: { class: "substack-version-number" }
+      attr: { class: "substack-version-number" },
     });
   }
 }

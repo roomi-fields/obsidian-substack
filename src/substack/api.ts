@@ -2,8 +2,9 @@ import { requestUrl, RequestUrlResponse } from "obsidian";
 import {
   SubstackDocument,
   SubstackDraftPayload,
-  SubstackDraftResponse,
-  ImageUploadResult
+  SubstackSection,
+  SubstackAudience,
+  ImageUploadResult,
 } from "./types";
 
 export class SubstackAPI {
@@ -36,8 +37,61 @@ export class SubstackAPI {
   private getHeaders(): Record<string, string> {
     return {
       "Content-Type": "application/json",
-      Cookie: this.cookie
+      Cookie: this.cookie,
     };
+  }
+
+  /**
+   * Get user profile with publications list
+   * Returns the list of publication subdomains the user owns
+   */
+  async getUserPublications(): Promise<string[]> {
+    const pubs = await this.getUserPublicationsWithInfo();
+    return pubs.map((p) => p.subdomain);
+  }
+
+  /**
+   * Get user publications with additional info (including paid status)
+   */
+  async getUserPublicationsWithInfo(): Promise<
+    Array<{ subdomain: string; hasPaidSubscriptions: boolean }>
+  > {
+    const response = await requestUrl({
+      url: "https://substack.com/api/v1/user/profile/self",
+      method: "GET",
+      headers: this.getHeaders(),
+      throw: false,
+    });
+
+    if (response.status >= 200 && response.status < 300 && response.json) {
+      const profile = response.json as {
+        publicationUsers?: Array<{
+          publication?: {
+            subdomain?: string;
+            has_subscriber_only_content?: boolean;
+            stripe_publishable_key?: string;
+            stripe_country?: string;
+            default_coupon?: unknown;
+            // Debug: log full publication object to console
+          };
+        }>;
+      };
+
+      if (profile.publicationUsers) {
+        return profile.publicationUsers
+          .map((pu) => ({
+            subdomain: pu.publication?.subdomain || "",
+            // Check for indicators of paid subscriptions being enabled
+            hasPaidSubscriptions: !!(
+              pu.publication?.stripe_publishable_key ||
+              pu.publication?.has_subscriber_only_content
+            ),
+          }))
+          .filter((p) => p.subdomain !== "");
+      }
+    }
+
+    return [];
   }
 
   async createDraft(
@@ -45,9 +99,10 @@ export class SubstackAPI {
     title: string,
     body: SubstackDocument,
     subtitle?: string,
-    audience: SubstackDraftPayload["audience"] = "everyone"
+    audience: SubstackAudience = "everyone",
+    tags?: string[],
   ): Promise<RequestUrlResponse> {
-    const payload = {
+    const payload: Record<string, unknown> = {
       draft_title: title,
       draft_subtitle: subtitle || "",
       draft_body: JSON.stringify(body),
@@ -55,8 +110,13 @@ export class SubstackAPI {
       audience,
       type: "newsletter",
       section_chosen: false,
-      write_comment_permissions: "everyone"
+      write_comment_permissions: "everyone",
     };
+
+    // Add tags if provided
+    if (tags && tags.length > 0) {
+      payload.postTags = tags;
+    }
 
     const url = `${this.getBaseUrl(publication)}/drafts`;
 
@@ -65,21 +125,62 @@ export class SubstackAPI {
       method: "POST",
       headers: this.getHeaders(),
       body: JSON.stringify(payload),
-      throw: false
+      throw: false,
     });
 
     return response;
   }
 
+  /**
+   * Get available sections for a publication
+   */
+  async getSections(publication: string): Promise<SubstackSection[]> {
+    const response = await requestUrl({
+      url: `https://${publication}.substack.com/api/v1/publication/sections`,
+      method: "GET",
+      headers: this.getHeaders(),
+      throw: false,
+    });
+
+    if (response.status >= 200 && response.status < 300 && response.json) {
+      const sections = response.json as
+        | SubstackSection[]
+        | { sections?: SubstackSection[] };
+
+      if (Array.isArray(sections)) {
+        return sections;
+      }
+      if (sections.sections) {
+        return sections.sections;
+      }
+    }
+
+    return [];
+  }
+
+  /**
+   * Update draft with section
+   */
+  async updateDraftSection(
+    publication: string,
+    draftId: string,
+    sectionId: number,
+  ): Promise<RequestUrlResponse> {
+    return this.updateDraft(publication, draftId, {
+      draft_section_id: sectionId,
+      section_chosen: true,
+    } as unknown as Partial<SubstackDraftPayload>);
+  }
+
   async publishDraft(
     publication: string,
-    draftId: string
+    draftId: string,
   ): Promise<RequestUrlResponse> {
     const response = await requestUrl({
       url: `${this.getBaseUrl(publication)}/drafts/${draftId}/publish`,
       method: "POST",
       headers: this.getHeaders(),
-      throw: false
+      throw: false,
     });
 
     return response;
@@ -90,7 +191,7 @@ export class SubstackAPI {
       url: `${this.getBaseUrl(publication)}/drafts`,
       method: "GET",
       headers: this.getHeaders(),
-      throw: false
+      throw: false,
     });
 
     return response;
@@ -99,14 +200,14 @@ export class SubstackAPI {
   async updateDraft(
     publication: string,
     draftId: string,
-    updates: Partial<SubstackDraftPayload>
+    updates: Partial<SubstackDraftPayload>,
   ): Promise<RequestUrlResponse> {
     const response = await requestUrl({
       url: `${this.getBaseUrl(publication)}/drafts/${draftId}`,
       method: "PUT",
       headers: this.getHeaders(),
       body: JSON.stringify(updates),
-      throw: false
+      throw: false,
     });
 
     return response;
@@ -114,13 +215,13 @@ export class SubstackAPI {
 
   async getDraft(
     publication: string,
-    draftId: string
+    draftId: string,
   ): Promise<RequestUrlResponse> {
     const response = await requestUrl({
       url: `${this.getBaseUrl(publication)}/drafts/${draftId}`,
       method: "GET",
       headers: this.getHeaders(),
-      throw: false
+      throw: false,
     });
 
     return response;
@@ -142,7 +243,7 @@ export class SubstackAPI {
     publication: string,
     imageData: ArrayBuffer,
     filename: string,
-    mimeType: string
+    mimeType: string,
   ): Promise<{ success: boolean; data?: ImageUploadResult; error?: string }> {
     // Convert ArrayBuffer to base64 data URI
     const uint8Array = new Uint8Array(imageData);
@@ -159,22 +260,22 @@ export class SubstackAPI {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        Cookie: this.cookie
+        Cookie: this.cookie,
       },
       body: `image=${encodeURIComponent(dataUri)}`,
-      throw: false
+      throw: false,
     });
 
     if (response.status >= 200 && response.status < 300) {
       return {
         success: true,
-        data: response.json as ImageUploadResult
+        data: response.json as ImageUploadResult,
       };
     }
 
     return {
       success: false,
-      error: `Upload failed: ${response.status} - ${response.text || "Unknown error"}`
+      error: `Upload failed: ${response.status} - ${response.text || "Unknown error"}`,
     };
   }
 }
@@ -184,5 +285,8 @@ export type {
   SubstackDocument,
   SubstackDraftPayload,
   SubstackDraftResponse,
-  ImageUploadResult
-};
+  SubstackSection,
+  SubstackAudience,
+  SubstackFrontmatter,
+  ImageUploadResult,
+} from "./types";

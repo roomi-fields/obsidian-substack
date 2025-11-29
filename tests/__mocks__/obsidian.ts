@@ -3,13 +3,13 @@ import { vi } from "vitest";
 // Mock requestUrl
 export const requestUrl = vi.fn().mockResolvedValue({
   status: 200,
-  json: { id: "draft-123" }
+  json: { id: "draft-123" },
 });
 
 // Mock Platform
 export const Platform = {
   isDesktop: true,
-  isMobile: false
+  isMobile: false,
 };
 
 // Mock Notice
@@ -25,12 +25,12 @@ export class Modal {
     empty: vi.fn(),
     createDiv: vi.fn().mockReturnValue({
       createEl: vi.fn().mockReturnValue({
-        addEventListener: vi.fn()
-      })
+        addEventListener: vi.fn(),
+      }),
     }),
     createEl: vi.fn().mockReturnValue({
-      addEventListener: vi.fn()
-    })
+      addEventListener: vi.fn(),
+    }),
   };
 
   constructor(app: unknown) {

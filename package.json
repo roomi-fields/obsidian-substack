@@ -1,6 +1,6 @@
 {
   "name": "substack-publisher",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Publish your notes directly to Substack as drafts or published posts.",
   "main": "main.js",
   "type": "module",
