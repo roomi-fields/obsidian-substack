@@ -1,4 +1,4 @@
-import { App, Modal, Notice, Setting, TFile } from "obsidian";
+import { App, Modal, Notice, RequestUrlResponse, Setting, TFile } from "obsidian";
 import { SubstackAPI } from "./api";
 import { MarkdownConverter } from "./converter";
 import { ImageHandler } from "./imageHandler";
@@ -6,7 +6,9 @@ import { ILogger } from "../utils/logger";
 import {
   SubstackAudience,
   SubstackSection,
-  SubstackFrontmatter
+  SubstackFrontmatter,
+  SubstackDraftResponse,
+  SubstackDraftPayload
 } from "./types";
 
 export interface PostComposerDefaults {
@@ -15,6 +17,8 @@ export interface PostComposerDefaults {
   defaultAudience: SubstackAudience;
   defaultTags: string[];
   paidSubscribersEnabled: boolean;
+  defaultAddWordPressLink: boolean;
+  onWordPressLinkPreferenceChange?: (value: boolean) => void;
 }
 
 export class SubstackPostComposer extends Modal {
@@ -35,6 +39,7 @@ export class SubstackPostComposer extends Modal {
   private activeFile: TFile | null = null;
   private frontmatter: SubstackFrontmatter = {};
   private defaults: PostComposerDefaults;
+  private addWordPressLink: boolean = false;
 
   constructor(
     app: App,
@@ -54,7 +59,8 @@ export class SubstackPostComposer extends Modal {
       defaultSectionId: null,
       defaultAudience: "everyone",
       defaultTags: [],
-      paidSubscribersEnabled: false
+      paidSubscribersEnabled: false,
+      defaultAddWordPressLink: false
     };
 
     // Apply defaults
@@ -63,6 +69,7 @@ export class SubstackPostComposer extends Modal {
     this.selectedSectionId = this.defaults.defaultSectionId;
     this.audience = this.defaults.defaultAudience || "everyone";
     this.tags = [...(this.defaults.defaultTags || [])];
+    this.addWordPressLink = this.defaults.defaultAddWordPressLink;
 
     // Ensure we have at least one publication
     if (!this.selectedPublication) {
@@ -227,6 +234,24 @@ export class SubstackPostComposer extends Modal {
         .filter((t) => t.length > 0);
     });
 
+    // WordPress link checkbox - only visible if wordpress_url exists
+    if (this.frontmatter.wordpress_url) {
+      new Setting(contentEl)
+        .setName("Add WordPress link in footer")
+        .setDesc("Include a link to the WordPress version of this article")
+        .addToggle((toggle) => {
+          toggle
+            .setValue(this.addWordPressLink)
+            .onChange((value) => {
+              this.addWordPressLink = value;
+              // Save preference for next time
+              if (this.defaults.onWordPressLinkPreferenceChange) {
+                this.defaults.onWordPressLinkPreferenceChange(value);
+              }
+            });
+        });
+    }
+
     // Content preview
     const previewContainer = contentEl.createDiv({
       cls: "substack-preview-container"
@@ -321,8 +346,43 @@ export class SubstackPostComposer extends Modal {
       if (typeof fm.section === "string") {
         parsed.section = fm.section;
       }
+      if (typeof fm.substack_url === "string") {
+        parsed.substack_url = fm.substack_url;
+      }
+      if (typeof fm.substack_draft_id === "string") {
+        parsed.substack_draft_id = fm.substack_draft_id;
+      }
+      if (typeof fm.wordpress_url === "string") {
+        parsed.wordpress_url = fm.wordpress_url;
+      }
+      if (typeof fm.excerpt === "string") {
+        parsed.excerpt = fm.excerpt;
+      }
 
       this.frontmatter = parsed;
+    }
+
+    // If no subtitle in frontmatter, try to extract from first H3 in content
+    if (!this.frontmatter.subtitle && this.activeFile) {
+      this.extractSubtitleFromContent();
+    }
+  }
+
+  /**
+   * Extract subtitle from the first H3 header in the content
+   * This is useful when the subtitle is in the markdown but not in frontmatter
+   */
+  private extractSubtitleFromContent(): void {
+    if (!this.activeFile) return;
+
+    const cache = this.app.metadataCache.getFileCache(this.activeFile);
+    if (!cache?.headings) return;
+
+    // Find the first H3 heading (typically the subtitle after H1 title)
+    const h3Heading = cache.headings.find((h) => h.level === 3);
+    if (h3Heading) {
+      this.subtitle = h3Heading.heading;
+      this.logger.debug("Extracted subtitle from H3", { subtitle: this.subtitle });
     }
   }
 
@@ -422,6 +482,7 @@ export class SubstackPostComposer extends Modal {
     const cleanContent = content.replace(/^---[\s\S]*?---\n?/, "");
 
     // Process images - upload local images to Substack CDN
+    // Note: Enluminure images are automatically skipped (not supported on Substack)
     const basePath = activeFile.parent?.path || "";
     const imageResult = await this.imageHandler.processMarkdownImages(
       this.selectedPublication,
@@ -446,7 +507,101 @@ export class SubstackPostComposer extends Modal {
       }
     }
 
-    return imageResult.processedMarkdown;
+    let processedContent = imageResult.processedMarkdown;
+
+    // Add WordPress link footer if enabled and wordpress_url exists
+    if (this.addWordPressLink && this.frontmatter.wordpress_url) {
+      const footer = `\n\n---\n\n📖 Lire cet article sur mon site : [Mon Site](${this.frontmatter.wordpress_url})`;
+      processedContent += footer;
+      this.logger.debug("Added WordPress link footer", {
+        url: this.frontmatter.wordpress_url
+      });
+    }
+
+    return processedContent;
+  }
+
+  /**
+   * Find an existing draft by title or ID
+   * @returns Draft ID if found, null otherwise
+   */
+  private async findExistingDraft(): Promise<string | null> {
+    try {
+      // First, check if we have a draft ID in frontmatter
+      if (this.frontmatter.substack_draft_id) {
+        this.logger.debug("Found draft ID in frontmatter", {
+          draftId: this.frontmatter.substack_draft_id
+        });
+
+        // Verify the draft still exists
+        const verifyResponse = await this.api.getDraft(
+          this.selectedPublication,
+          this.frontmatter.substack_draft_id
+        );
+
+        if (verifyResponse.status === 200) {
+          return this.frontmatter.substack_draft_id;
+        } else {
+          this.logger.warn("Draft ID in frontmatter no longer exists", {
+            draftId: this.frontmatter.substack_draft_id,
+            status: verifyResponse.status
+          });
+        }
+      }
+
+      // If no valid draft ID in frontmatter, check for draft with same title
+      const draftsResponse = await this.api.listDrafts(this.selectedPublication);
+
+      if (draftsResponse.status !== 200 || !draftsResponse.json) {
+        this.logger.warn("Failed to list drafts", {
+          status: draftsResponse.status
+        });
+        return null;
+      }
+
+      const drafts = draftsResponse.json as SubstackDraftResponse[];
+
+      // Search for a draft with matching title
+      const matchingDraft = drafts.find(
+        (draft) => draft.draft_title === this.title
+      );
+
+      if (matchingDraft) {
+        this.logger.debug("Found existing draft by title", {
+          draftId: matchingDraft.id,
+          title: matchingDraft.draft_title
+        });
+        return matchingDraft.id;
+      }
+
+      return null;
+    } catch (error) {
+      this.logger.warn("Error finding existing draft", error);
+      return null;
+    }
+  }
+
+  /**
+   * Update frontmatter with draft ID
+   */
+  private async updateFrontmatterWithDraftId(draftId: string): Promise<void> {
+    if (!this.activeFile) {
+      this.logger.warn("No active file to update frontmatter");
+      return;
+    }
+
+    try {
+      await this.app.fileManager.processFrontMatter(
+        this.activeFile,
+        (frontmatter) => {
+          frontmatter.substack_draft_id = draftId;
+        }
+      );
+      this.logger.info("Updated frontmatter with draft ID", { draftId });
+    } catch (error) {
+      this.logger.error("Failed to update frontmatter with draft ID", error);
+      // Don't throw - this is a non-critical feature
+    }
   }
 
   private async saveDraft() {
@@ -461,46 +616,96 @@ export class SubstackPostComposer extends Modal {
     this.setButtonsDisabled(true, "Saving...");
 
     try {
-      this.logger.debug("Creating Substack draft", {
-        publication: this.selectedPublication,
-        title: this.title,
-        audience: this.audience,
-        tags: this.tags,
-        sectionId: this.selectedSectionId
-      });
-
       // Convert markdown to Substack JSON format
       const body = this.converter.convert(content);
 
-      const response = await this.api.createDraft(
-        this.selectedPublication,
-        this.title,
-        body,
-        this.subtitle,
-        this.audience,
-        this.tags.length > 0 ? this.tags : undefined
-      );
+      // Check if we should update an existing draft
+      const existingDraftId = await this.findExistingDraft();
 
-      if (response.status === 200 || response.status === 201) {
-        const draftId = response.json?.id as string | undefined;
+      let draftId: string | undefined;
+      let isUpdate = false;
 
-        // Set section if selected
-        if (draftId && this.selectedSectionId !== null) {
-          await this.api.updateDraftSection(
-            this.selectedPublication,
-            draftId,
-            this.selectedSectionId
-          );
+      if (existingDraftId) {
+        // Update existing draft
+        this.logger.debug("Updating existing Substack draft", {
+          publication: this.selectedPublication,
+          draftId: existingDraftId,
+          title: this.title,
+          audience: this.audience,
+          tags: this.tags,
+          sectionId: this.selectedSectionId
+        });
+
+        const updatePayload: Record<string, unknown> = {
+          draft_title: this.title,
+          draft_subtitle: this.subtitle || "",
+          draft_body: JSON.stringify(body),
+          audience: this.audience
+        };
+
+        // Add tags if provided
+        if (this.tags.length > 0) {
+          updatePayload.postTags = this.tags;
         }
 
-        this.logger.info("Draft created successfully");
-        new Notice("Draft saved successfully");
-        this.close();
+        const response = await this.api.updateDraft(
+          this.selectedPublication,
+          existingDraftId,
+          updatePayload as Partial<SubstackDraftPayload>
+        );
+
+        if (response.status === 200 || response.status === 201) {
+          draftId = existingDraftId;
+          isUpdate = true;
+        } else {
+          throw new Error(this.getErrorMessage(response.status));
+        }
       } else {
-        throw new Error(this.getErrorMessage(response.status));
+        // Create new draft
+        this.logger.debug("Creating new Substack draft", {
+          publication: this.selectedPublication,
+          title: this.title,
+          audience: this.audience,
+          tags: this.tags,
+          sectionId: this.selectedSectionId
+        });
+
+        const response = await this.api.createDraft(
+          this.selectedPublication,
+          this.title,
+          body,
+          this.subtitle,
+          this.audience,
+          this.tags.length > 0 ? this.tags : undefined
+        );
+
+        if (response.status === 200 || response.status === 201) {
+          draftId = response.json?.id as string | undefined;
+        } else {
+          throw new Error(this.getErrorMessage(response.status));
+        }
       }
+
+      // Set section if selected
+      if (draftId && this.selectedSectionId !== null) {
+        await this.api.updateDraftSection(
+          this.selectedPublication,
+          draftId,
+          this.selectedSectionId
+        );
+      }
+
+      // Update frontmatter with draft ID (if not already present or if new draft)
+      if (draftId && !isUpdate) {
+        await this.updateFrontmatterWithDraftId(draftId);
+      }
+
+      const actionText = isUpdate ? "updated" : "created";
+      this.logger.info(`Draft ${actionText} successfully`);
+      new Notice(`Draft ${actionText} successfully`);
+      this.close();
     } catch (error) {
-      this.logger.error("Failed to create draft", error);
+      this.logger.error("Failed to save draft", error);
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       new Notice(`Failed to save draft: ${errorMessage}`);
@@ -531,23 +736,62 @@ export class SubstackPostComposer extends Modal {
       // Convert markdown to Substack JSON format
       const body = this.converter.convert(content);
 
-      // First create draft
-      const draftResponse = await this.api.createDraft(
-        this.selectedPublication,
-        this.title,
-        body,
-        this.subtitle,
-        this.audience,
-        this.tags.length > 0 ? this.tags : undefined
-      );
+      // Check if we should update an existing draft or create new one
+      const existingDraftId = await this.findExistingDraft();
 
-      if (draftResponse.status !== 200 && draftResponse.status !== 201) {
-        throw new Error(this.getErrorMessage(draftResponse.status));
-      }
+      let draftId: string | undefined;
 
-      const draftId = draftResponse.json?.id as string | undefined;
-      if (!draftId) {
-        throw new Error("Invalid response from Substack: missing draft ID");
+      if (existingDraftId) {
+        // Update existing draft
+        this.logger.debug("Updating existing draft before publishing", {
+          draftId: existingDraftId
+        });
+
+        const updatePayload: Record<string, unknown> = {
+          draft_title: this.title,
+          draft_subtitle: this.subtitle || "",
+          draft_body: JSON.stringify(body),
+          audience: this.audience
+        };
+
+        // Add tags if provided
+        if (this.tags.length > 0) {
+          updatePayload.postTags = this.tags;
+        }
+
+        const draftResponse = await this.api.updateDraft(
+          this.selectedPublication,
+          existingDraftId,
+          updatePayload as Partial<SubstackDraftPayload>
+        );
+
+        if (draftResponse.status !== 200 && draftResponse.status !== 201) {
+          throw new Error(this.getErrorMessage(draftResponse.status));
+        }
+
+        draftId = existingDraftId;
+      } else {
+        // Create new draft
+        const draftResponse = await this.api.createDraft(
+          this.selectedPublication,
+          this.title,
+          body,
+          this.subtitle,
+          this.audience,
+          this.tags.length > 0 ? this.tags : undefined
+        );
+
+        if (draftResponse.status !== 200 && draftResponse.status !== 201) {
+          throw new Error(this.getErrorMessage(draftResponse.status));
+        }
+
+        draftId = draftResponse.json?.id as string | undefined;
+        if (!draftId) {
+          throw new Error("Invalid response from Substack: missing draft ID");
+        }
+
+        // Update frontmatter with draft ID for new drafts
+        await this.updateFrontmatterWithDraftId(draftId);
       }
 
       // Set section if selected
@@ -567,6 +811,10 @@ export class SubstackPostComposer extends Modal {
 
       if (publishResponse.status === 200 || publishResponse.status === 201) {
         this.logger.info("Post published successfully");
+
+        // Update frontmatter with Substack URL
+        await this.updateFrontmatterWithUrl(publishResponse, this.selectedPublication);
+
         new Notice("Published successfully");
         this.close();
       } else {
@@ -580,6 +828,51 @@ export class SubstackPostComposer extends Modal {
         error instanceof Error ? error.message : String(error);
       new Notice(`Failed to publish: ${errorMessage}`);
       this.setButtonsDisabled(false);
+    }
+  }
+
+  private async updateFrontmatterWithUrl(
+    publishResponse: RequestUrlResponse,
+    publication: string
+  ): Promise<void> {
+    if (!this.activeFile) {
+      this.logger.warn("No active file to update frontmatter");
+      return;
+    }
+
+    try {
+      const responseData = publishResponse.json as {
+        slug?: string;
+        canonical_url?: string;
+      };
+
+      // Prefer canonical_url if available, otherwise construct from slug
+      let substackUrl: string | undefined;
+
+      if (responseData.canonical_url) {
+        substackUrl = responseData.canonical_url;
+      } else if (responseData.slug) {
+        substackUrl = `https://${publication}.substack.com/p/${responseData.slug}`;
+      }
+
+      if (substackUrl) {
+        await this.app.fileManager.processFrontMatter(
+          this.activeFile,
+          (frontmatter) => {
+            frontmatter.substack_url = substackUrl;
+          }
+        );
+        this.logger.info("Updated frontmatter with Substack URL", {
+          url: substackUrl
+        });
+      } else {
+        this.logger.warn(
+          "Could not determine Substack URL from publish response"
+        );
+      }
+    } catch (error) {
+      this.logger.error("Failed to update frontmatter with Substack URL", error);
+      // Don't throw - this is a non-critical feature
     }
   }
 

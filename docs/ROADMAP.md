@@ -62,6 +62,11 @@
 
 ## Backlog (Unprioritized)
 
+### WordPress
+- [x] Tags WordPress (lookup IDs + envoi)
+- [ ] og:image via Rank Math (nécessite `featured_media` ou debug `rank_math_facebook_image_id`)
+
+### Substack
 - [ ] Substack podcast support
 - [ ] Import Substack posts → Obsidian
 - [ ] Reverse conversion (Substack JSON → Markdown)
