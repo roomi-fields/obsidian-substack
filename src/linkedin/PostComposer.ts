@@ -1,3 +1,4 @@
+/* global HTMLTextAreaElement */
 import { App, Modal, Notice, Setting, TFile } from "obsidian";
 import { LinkedInAPI } from "./api";
 import { LinkedInMarkdownConverter } from "./converter";
@@ -32,7 +33,7 @@ export class LinkedInPostComposer extends Modal {
 
   // UI elements
   private publishButton: HTMLButtonElement | null = null;
-  private previewEl: HTMLElement | null = null;
+  private previewEl: HTMLTextAreaElement | null = null;
 
   // File state
   private activeFile: TFile | null = null;
